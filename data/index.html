@@ -1,0 +1,66 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Frameset//EN" "http://www.w3.org/TR/html4/frameset.dtd">
+<html>
+    <head>
+      <title>Szöllőmelegítő</title>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <link rel="stylesheet" type="text/css" href="style.css">
+    </head>
+    <body>
+        <h1> Szöllőmelegítő </h1>
+        <p>
+            <span class="sensor-labels">Hőmérséklet 1: </span>
+            <span id="temperature1">%TEMPERATURE1%</span>
+            <sup class="units">°C</sup>
+            <br><br>
+            <span class="sensor-labels">Hőmérséklet 2: </span>
+            <span id="temperature2">%TEMPERATURE2%</span>
+            <sup class="units">°C</sup>
+            <br><br>
+            <span class="sensor-labels">Fűtés: </span>
+            <span id="heating">%HEATING%</span>
+        </p>
+        <form action="/submit">
+            <label for="newtemp">Új hőmérséklet:</label>
+            <input type="number" id="newtemp" name="newtemp" value="%TEMPSET%"><br><br>
+            <input type="submit" value="Beállít"><br><br>
+            <label for="wifinetwork">Wifi hálózat:</label>
+            <input type="text" id="wifinetwork" name="wifinetwork" value="%WIFINETWORK%"><br><br>
+            <label for="wifipassword">Wifi jelszó:</label>
+            <input type="text" id="wifipassword" name="wifipassword" value="%WIFIPASSWORD%"><br><br>
+          </form>
+    </body>
+    <script>
+      setInterval(function ( ) {
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function() {
+          if (this.readyState == 4 && this.status == 200) {
+            document.getElementById("temperature1").innerHTML = this.responseText;
+          }
+        };
+        xhttp.open("GET", "/temperature1", true);
+        xhttp.send();
+      }, 10000 ) ;
+    
+      setInterval(function ( ) {
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function() {
+          if (this.readyState == 4 && this.status == 200) {
+            document.getElementById("temperature2").innerHTML = this.responseText;
+          }
+        };
+        xhttp.open("GET", "/temperature2", true);
+        xhttp.send();
+      }, 10000 ) ;
+      setInterval(function ( ) {
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function() {
+          if (this.readyState == 4 && this.status == 200) {
+            document.getElementById("heating").innerHTML = this.responseText;
+          }
+        };
+        xhttp.open("GET", "/heating", true);
+        xhttp.send();
+      }, 10000 ) ;
+  </script>
+</html>
