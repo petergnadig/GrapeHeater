@@ -9,8 +9,16 @@
 #include <OneWire.h>
 #include <DallasTemperature.h>
 
+#define UpdateMinutes 120
+#define ProductKey "328d8051-5a20-4fb2-8eb2-c976d425b98e"
+#define Version "21.03.02.01"
+#define FlashVersion "21.03.02.51"
+#include "OtadriveUpdate.h"
+
 #define RELAY_PIN 5
 #define ONE_WIRE_BUS 2 // Gyulai kütyün ez 4!!!!
+
+int update_ret;
 
 OneWire oneWire(ONE_WIRE_BUS);
 DallasTemperature sensors(&oneWire);
@@ -148,14 +156,30 @@ void printAddress(DeviceAddress deviceAddress)
   Serial.println("");
 }
 
+
 void setup() {
   delay(1000);
+  Serial.begin(115200);
+  Serial.println();
+
+  wifisetup();
+  
+  Serial.print("----Flash Update try----");
+  update_ret= OtadriveUpdateFlash();
+  Serial.print("----Flash Update result----");
+  Serial.println(update_ret);
+
+
+  Serial.print("----Program Update try----");
+  update_ret= OtadriveUpdate();
+  Serial.print("----Program Update result----");
+  Serial.println(update_ret);
+  
   pinMode(RELAY_PIN,OUTPUT);
   digitalWrite(RELAY_PIN,LOW);
   Heating = "KI";
 
-  Serial.begin(115200);
-  Serial.println();
+  delay(10000);
   
   EEPROM.begin(512);
   readep();
@@ -177,8 +201,6 @@ void setup() {
   SetTemperature = eepromdata.setTemp;
   strcpy(ssidCl,eepromdata.wifinetwork);
   strcpy(passwordCl,eepromdata.wifipassword);
-  
-  wifisetup();
   
   Serial.println(LittleFS.begin() ? "File system Ready" : "File System Failed!");
 
