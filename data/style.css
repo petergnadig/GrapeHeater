@@ -52,3 +52,15 @@ html {
     vertical-align:left;
     padding-bottom: 15px;
   }
+
+  
+
+  .inputThings{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+.inputThings td{
+    text-align: left;
+}

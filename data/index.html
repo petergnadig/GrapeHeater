@@ -20,47 +20,26 @@
             <span class="sensor-labels">Fűtés: </span>
             <span id="heating">%HEATING%</span>
         </p>
-        <form action="/submit">
-            <label for="newtemp">Új hőmérséklet:</label>
-            <input type="number" id="newtemp" name="newtemp" value="%TEMPSET%"><br><br>
-            <input type="submit" value="Beállít"><br><br>
-            <label for="wifinetwork">Wifi hálózat:</label>
-            <input type="text" id="wifinetwork" name="wifinetwork" value="%WIFINETWORK%"><br><br>
-            <label for="wifipassword">Wifi jelszó:</label>
-            <input type="text" id="wifipassword" name="wifipassword" value="%WIFIPASSWORD%"><br><br>
+        <div class="inputThings">
+          <form action="/submit">
+            <table>
+              <tr>
+                <td><label for="newtemp">Új hőmérséklet:</label></td>
+                <td><input type="number" id="newtemp" name="newtemp" value="%TEMPSET%"></td>
+              </tr>
+              <tr>
+                <td><label for="wifinetwork">Wifi hálózat:</label></td>
+                <td><input type="text" id="wifinetwork" name="wifinetwork" value="%WIFINETWORK%"></td>                
+              </tr>
+              <tr>
+                <td><label for="wifipassword">Wifi jelszó:</label></td>
+                <td><input type="text" id="wifipassword" name="wifipassword" value="%WIFIPASSWORD%"></td>
+              </tr>
+            </table>
+            <input type="submit" value="Beállít">
          </form>
+        </div>
     </body>
-    <script>
-      setInterval(function ( ) {
-        var xhttp = new XMLHttpRequest();
-        xhttp.onreadystatechange = function() {
-          if (this.readyState == 4 && this.status == 200) {
-            document.getElementById("temperature1").innerHTML = this.responseText;
-          }
-        };
-        xhttp.open("GET", "/temperature1", true);
-        xhttp.send();
-      }, 10000 ) ;
-    
-      setInterval(function ( ) {
-        var xhttp = new XMLHttpRequest();
-        xhttp.onreadystatechange = function() {
-          if (this.readyState == 4 && this.status == 200) {
-            document.getElementById("temperature2").innerHTML = this.responseText;
-          }
-        };
-        xhttp.open("GET", "/temperature2", true);
-        xhttp.send();
-      }, 10000 ) ;
-      setInterval(function ( ) {
-        var xhttp = new XMLHttpRequest();
-        xhttp.onreadystatechange = function() {
-          if (this.readyState == 4 && this.status == 200) {
-            document.getElementById("heating").innerHTML = this.responseText;
-          }
-        };
-        xhttp.open("GET", "/heating", true);
-        xhttp.send();
-      }, 10000 ) ;
-  </script>
+
+    <script type="text/javascript" src="scripts.js"></script>
 </html>
