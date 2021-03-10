@@ -64,3 +64,9 @@ html {
 .inputThings td{
     text-align: left;
 }
+
+.navigationToAnotherPage{
+  display: flex;
+  justify-content: center;
+  margin-top: auto;
+}

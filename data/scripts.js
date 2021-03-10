@@ -29,3 +29,12 @@ setInterval(function ( ) {
     xhttp.open("GET", "/heating", true);
     xhttp.send();
   }, 10000 ) ;
+
+  
+ // Storing test data:
+ myObj1 = {name: "John", vote: 31, city: "New York"};
+ myObj2 = {name: "Bela", vote: 42, city: "Budapest"};
+ myObj3 = {name: "Tamas", vote: 52, city: "Kaposvar"};
+ let myTestArray = [myObj1, myObj2, myObj3];
+ myJSON = JSON.stringify(myTestArray);
+ localStorage.setItem("testJSON", myJSON);

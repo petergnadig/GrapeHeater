@@ -2,26 +2,58 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Frameset//EN" "http://www.w3.org/TR/html4/frameset.dtd">
 <html>
     <head>
-      <title>Sz�ll�meleg�t�</title>
+      <title>Szőllőmelegítő</title>
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1">
       <link rel="stylesheet" type="text/css" href="Chart.css">
 	<script src="Chart.js"></script>
     </head>
     <body>
+        <form action="/index.html">
+            <input type="submit" value="Vissza" />
+        </form>
     </body>
 <div class="chart-container" style="position: relative; height:40vh; width:80vw">
     <canvas id="myChart"></canvas>
 </div>
 <script>
+
+/* Teszt olvasás */
+// Retrieving data:
+text = localStorage.getItem("testJSON");
+obj = JSON.parse(text);
+
+// consol log 
+/*obj.push({name: "Jakab", age: 12, city: "Tibifalva"});
+obj.forEach(element => {
+    console.log(element.name);
+});*/
+
+//labelsArray feltöltése a kiolvasott adatokkal
+var labelArray = new Array();
+obj.forEach(element => {
+    labelArray.push(element.name);
+});
+//dataArray feltöltése a kiolvasott adatokkal
+var dataArray = new Array();
+obj.forEach(element => {
+    dataArray.push(element.vote);
+});
+
+
 var ctx = document.getElementById('myChart');
 var myChart = new Chart(ctx, {
     type: 'bar',
     data: {
-        labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+        //labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+        //Labels megkapja a labelArray-t
+        labels: labelArray,
+        
         datasets: [{
             label: '# of Votes',
-            data: [12, 19, 3, 5, 2, 3],
+            //data: [12, 19, 3, 5, 2, 3],
+            //data megkapja a dataArray-t
+            data: dataArray,
             backgroundColor: [
                 'rgba(255, 99, 132, 0.2)',
                 'rgba(54, 162, 235, 0.2)',
