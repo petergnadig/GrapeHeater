@@ -16,7 +16,7 @@
 #include "OtadriveUpdate.h"
 
 #define RELAY_PIN 5
-#define ONE_WIRE_BUS 2 // Gyulai kütyün ez 4!!!!
+#define ONE_WIRE_BUS 4 // Gyulai kütyün ez 4!!!!
 
 int update_ret;
 
@@ -48,7 +48,17 @@ struct {
     char waswritten[10] ="";
   } eepromdata;
 
-String Heating = "XX";
+typedef struct Chartstruct{
+  unsigned long time = 0;
+  float temp1 = 0;
+  float temp2 = 0;
+  bool futes = false;
+};
+Chartstruct chartdata[1024];
+int cdatacounter=0;
+unsigned long time_last_update=millis();
+
+bool Heating = false;
 
 void(* resetFunc) (void) = 0;//declare reset function at address 0
 
@@ -139,9 +149,12 @@ String prephtml(const String& var){
     return getWifiPassword();
   }
   else if (var == "HEATING") {
-    return Heating;
-  }
+    if (Heating) 
+      {return "ON";}
+    else
+      {return "OFF";}
   return "Nope!!!";
+  }
 }
 
 void printAddress(DeviceAddress deviceAddress)
@@ -177,9 +190,9 @@ void setup() {
   
   pinMode(RELAY_PIN,OUTPUT);
   digitalWrite(RELAY_PIN,LOW);
-  Heating = "KI";
+  Heating = false;
 
-  delay(10000);
+  delay(1000);
   
   EEPROM.begin(512);
   readep();
@@ -269,7 +282,8 @@ void setup() {
   });
 
   server.on("/heating", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send_P(200, "text/plain", Heating.c_str());
+    String HS = (Heating) ? "ON" : "OFF";
+    request->send_P(200, "text/plain", HS.c_str());
   });
 
   server.begin();
@@ -293,23 +307,32 @@ void loop() {
   T[1]=getTempFloat(1);
   T[2]=getTempFloat(2);
   T[0]=(T[1]+T[2])/2;
-  Serial.print("  Beallitott hőmérséklet: ");
-  Serial.print(eepromdata.setTemp);
-  Serial.print("  Első hőmérő: ");
-  Serial.print(T[1]);
-  Serial.print("  Második hőmérő: ");
-  Serial.print(T[2]);
-  Serial.print("  Átlag hőmérséklet: ");
-  Serial.print(T[0]);
-  Serial.print("  Fűtés: ");
+
   if (T[0]<(eepromdata.setTemp-0.25)) {
     digitalWrite(RELAY_PIN,HIGH);
-    Heating = "BE";
+    Heating = true;
   }
   if (T[0]>(eepromdata.setTemp+0.25)) {
     digitalWrite(RELAY_PIN,LOW);
-    Heating = "KI";
+    Heating = false;
   }
-  // digitalWrite(RELAY_PIN,LOW);
-  Serial.println(Heating);
+
+  chartdata[cdatacounter].time= millis();
+  chartdata[cdatacounter].temp1 = T[1];
+  chartdata[cdatacounter].temp2 = T[2];
+  chartdata[cdatacounter].futes = Heating;
+
+  Serial.print("DC: ");
+  Serial.print(cdatacounter);
+  Serial.print(" SetTemp: ");
+  Serial.print(eepromdata.setTemp);
+  Serial.print(" T1: ");
+  Serial.print(chartdata[cdatacounter].temp1);
+  Serial.print(" T2: ");
+  Serial.print(chartdata[cdatacounter].temp2);
+  Serial.print(" Heating: ");
+  Serial.print(chartdata[cdatacounter].futes);
+  Serial.println();
+  cdatacounter++;
+  cdatacounter=cdatacounter & 15;
 }
