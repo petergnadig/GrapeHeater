@@ -11,8 +11,8 @@
 
 #define UpdateMinutes 120
 #define ProductKey "328d8051-5a20-4fb2-8eb2-c976d425b98e"
-#define Version "21.03.02.01"
-#define FlashVersion "21.03.02.51"
+#define Version "21.03.14.01"
+#define FlashVersion "21.03.14.51"
 #include "OtadriveUpdate.h"
 
 #define RELAY_PIN 5
