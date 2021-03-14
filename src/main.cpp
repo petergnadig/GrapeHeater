@@ -18,6 +18,8 @@
 #define RELAY_PIN 5
 #define ONE_WIRE_BUS 4 // Gyulai kütyün ez 4!!!!
 
+#define CHARTDATANO 15
+
 int update_ret;
 
 OneWire oneWire(ONE_WIRE_BUS);
@@ -50,6 +52,7 @@ struct {
 
 typedef struct Chartstruct{
   unsigned long time = 0;
+  float settemp = 0;
   float temp1 = 0;
   float temp2 = 0;
   bool futes = false;
@@ -155,6 +158,7 @@ String prephtml(const String& var){
       {return "OFF";}
   return "Nope!!!";
   }
+  return "";
 }
 
 void printAddress(DeviceAddress deviceAddress)
@@ -167,6 +171,48 @@ void printAddress(DeviceAddress deviceAddress)
     if (i < 7) Serial.print(", ");
   }
   Serial.println("");
+}
+
+void prepJsonResponseFile() {
+  if (LittleFS.exists("data.json")) {
+    LittleFS.remove("data.json");
+  }
+  File file=LittleFS.open("data.json", "w");
+  //Serial.println("---------JOSON FILE CREATE ----------");
+  int jsoncounter = cdatacounter++;
+  jsoncounter = jsoncounter & CHARTDATANO;
+  int count =0;
+  file.println("{");
+  while (count<= CHARTDATANO) {
+    file.print("{ time:");
+      file.print(chartdata[jsoncounter].time);
+      file.print(" , ");
+    file.print(" ST:");
+      file.print(chartdata[jsoncounter].settemp);
+      file.print(" , ");
+    file.print(" T1:");
+      file.print(chartdata[jsoncounter].temp1);
+      file.print(" , ");
+    file.print(" T2:");
+      file.print(chartdata[jsoncounter].temp2);
+      file.print(" , ");
+    file.print(" HE:");
+      file.print(chartdata[jsoncounter].futes);
+      file.print(" }");
+    file.println();
+    count++;
+    jsoncounter++;
+    jsoncounter = jsoncounter & CHARTDATANO;
+  }
+  file.println("}");
+  file.close();
+  //Serial.println("---------JOSON FILE CREATE ----------");
+
+  file=LittleFS.open("data.json", "r");    
+  //while(file.available()){
+  //  Serial.write(file.read());
+  //}
+  file.close();
 }
 
 
@@ -286,10 +332,19 @@ void setup() {
     request->send_P(200, "text/plain", HS.c_str());
   });
 
+  server.on("/data", HTTP_GET, [](AsyncWebServerRequest *request) {
+    //Serial.println("DATA");
+    prepJsonResponseFile();
+    //Serial.println("DATA ready");
+    AsyncWebServerResponse* response = request->beginResponse(LittleFS, "data.json", "text/plain"); 
+    //response->addHeader("Content-Encoding", "gzip");
+    //Serial.println("response ready");
+    request->send(response);
+    //Serial.println("response sent");
+  });
+
   server.begin();
   Serial.println("HTTP server started");
-
-
 
   sensors.begin();
   deviceCount = sensors.getDeviceCount();
@@ -318,14 +373,17 @@ void loop() {
   }
 
   chartdata[cdatacounter].time= millis();
+  chartdata[cdatacounter].settemp = eepromdata.setTemp;
   chartdata[cdatacounter].temp1 = T[1];
   chartdata[cdatacounter].temp2 = T[2];
   chartdata[cdatacounter].futes = Heating;
 
   Serial.print("DC: ");
   Serial.print(cdatacounter);
+  Serial.print(" Time: ");
+  Serial.print(chartdata[cdatacounter].time);
   Serial.print(" SetTemp: ");
-  Serial.print(eepromdata.setTemp);
+  Serial.print(chartdata[cdatacounter].settemp);
   Serial.print(" T1: ");
   Serial.print(chartdata[cdatacounter].temp1);
   Serial.print(" T2: ");
@@ -334,5 +392,5 @@ void loop() {
   Serial.print(chartdata[cdatacounter].futes);
   Serial.println();
   cdatacounter++;
-  cdatacounter=cdatacounter & 15;
+  cdatacounter=cdatacounter & CHARTDATANO;
 }
