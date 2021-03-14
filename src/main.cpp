@@ -11,8 +11,8 @@
 
 #define UpdateMinutes 120
 #define ProductKey "328d8051-5a20-4fb2-8eb2-c976d425b98e"
-#define Version "21.03.14.01"
-#define FlashVersion "21.03.14.51"
+#define Version "21.03.14.02"
+#define FlashVersion "21.03.14.52"
 #include "OtadriveUpdate.h"
 
 #define RELAY_PIN 5
@@ -178,7 +178,6 @@ void prepJsonResponseFile() {
     LittleFS.remove("data.json");
   }
   File file=LittleFS.open("data.json", "w");
-  //Serial.println("---------JOSON FILE CREATE ----------");
   int jsoncounter = cdatacounter++;
   jsoncounter = jsoncounter & CHARTDATANO;
   int count =0;
@@ -206,15 +205,9 @@ void prepJsonResponseFile() {
   }
   file.println("}");
   file.close();
-  //Serial.println("---------JOSON FILE CREATE ----------");
-
   file=LittleFS.open("data.json", "r");    
-  //while(file.available()){
-  //  Serial.write(file.read());
-  //}
   file.close();
 }
-
 
 void setup() {
   delay(1000);
@@ -264,29 +257,32 @@ void setup() {
   Serial.println(LittleFS.begin() ? "File system Ready" : "File System Failed!");
 
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
-    Serial.println("Index!!!");
     AsyncWebServerResponse* response = request->beginResponse(LittleFS, "/index.html", String(), false, prephtml);
-    //response->addHeader("Content-Encoding", "gzip");
+    request->send(response);
+  });
+  
+  server.on("/index.html", HTTP_GET, [](AsyncWebServerRequest *request) {
+    AsyncWebServerResponse* response = request->beginResponse(LittleFS, "/index.html", String(), false, prephtml);
+    request->send(response);
+  });
+
+  server.on("/indexScripts.js", HTTP_GET, [](AsyncWebServerRequest *request) {
+    AsyncWebServerResponse* response = request->beginResponse(LittleFS, "/indexScripts.js", "text"); 
     request->send(response);
   });
 
   server.on("/style.css", HTTP_GET, [](AsyncWebServerRequest *request) {
     Serial.println("Style!!!");
     AsyncWebServerResponse* response = request->beginResponse(LittleFS, "/style.css", "text/css"); 
-    //response->addHeader("Content-Encoding", "gzip");
     request->send(response);
   });
 
   server.on("/submit", HTTP_GET, [](AsyncWebServerRequest *request) {
-    
-    Serial.println("Submit!!!");
     eempromchange = false;
     wifichange = false;
     if (request->hasParam("newtemp")) {
       inputMessage = request->getParam("newtemp")->value();
       eepromdata.setTemp=inputMessage.toFloat();
-      Serial.print("New Temperature: ");
-      Serial.println(eepromdata.setTemp);
       eempromchange=true;
     }
     if (request->hasParam("wifinetwork")) {
@@ -294,8 +290,6 @@ void setup() {
       inputMessage.toCharArray(newnetwork,33);
       if (strcmp(eepromdata.wifinetwork,newnetwork)!=0) {
         strcpy(eepromdata.wifinetwork,newnetwork);
-        Serial.print("New wifi network: ");
-        Serial.println(eepromdata.wifinetwork);
         eempromchange = true;
         wifichange = true;
       }
@@ -305,17 +299,13 @@ void setup() {
       inputMessage.toCharArray(newpassword,65);
       if (strcmp(eepromdata.wifipassword,newpassword)!=0) {
         strcpy(eepromdata.wifipassword,newpassword);
-        Serial.print("New wifi password: ");
-        Serial.println(eepromdata.wifipassword);
         eempromchange = true;
         wifichange = true;
       }
     } 
     if (eempromchange) {writeep();}
     if (wifichange) {resetFunc();}
-    
     AsyncWebServerResponse* response = request->beginResponse(LittleFS, "/index.html", String(), false, prephtml);
-    //response->addHeader("Content-Encoding", "gzip");
     request->send(response);
   });
 
@@ -333,14 +323,29 @@ void setup() {
   });
 
   server.on("/data", HTTP_GET, [](AsyncWebServerRequest *request) {
-    //Serial.println("DATA");
     prepJsonResponseFile();
-    //Serial.println("DATA ready");
     AsyncWebServerResponse* response = request->beginResponse(LittleFS, "data.json", "text/plain"); 
-    //response->addHeader("Content-Encoding", "gzip");
-    //Serial.println("response ready");
     request->send(response);
-    //Serial.println("response sent");
+  });
+
+  server.on("/myChart.html", HTTP_GET, [](AsyncWebServerRequest *request) {
+    AsyncWebServerResponse* response = request->beginResponse(LittleFS, "/myChart.html", "text/html"); 
+    request->send(response);
+  });
+
+  server.on("/chart/chart.css", HTTP_GET, [](AsyncWebServerRequest *request) {
+    AsyncWebServerResponse* response = request->beginResponse(LittleFS, "/chart/chart.css", "text/css"); 
+    request->send(response);
+  });
+
+  server.on("/chart/Chart.js", HTTP_GET, [](AsyncWebServerRequest *request) {
+    AsyncWebServerResponse* response = request->beginResponse(LittleFS, "/chart/Chart.js", "text"); 
+    request->send(response);
+  });
+
+  server.on("/chart/moment.js", HTTP_GET, [](AsyncWebServerRequest *request) {
+    AsyncWebServerResponse* response = request->beginResponse(LittleFS, "/chart/moment.js", "text"); 
+    request->send(response);
   });
 
   server.begin();
