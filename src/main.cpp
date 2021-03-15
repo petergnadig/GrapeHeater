@@ -76,6 +76,10 @@ void readep() {
 
 void wifisetup() {
   WiFi.hostname("SZOLLOMELEGITO");
+  Serial.print("WifI SSID:");
+  Serial.println(ssidCl);
+  Serial.print("WifI pass:");
+  Serial.println(passwordCl);
   WiFi.begin(ssidCl, passwordCl);
   Serial.print("Connecting");
   int Try=30;
@@ -214,25 +218,6 @@ void setup() {
   Serial.begin(115200);
   Serial.println();
 
-  wifisetup();
-  
-  Serial.print("----Flash Update try----");
-  update_ret= OtadriveUpdateFlash();
-  Serial.print("----Flash Update result----");
-  Serial.println(update_ret);
-
-
-  Serial.print("----Program Update try----");
-  update_ret= OtadriveUpdate();
-  Serial.print("----Program Update result----");
-  Serial.println(update_ret);
-  
-  pinMode(RELAY_PIN,OUTPUT);
-  digitalWrite(RELAY_PIN,LOW);
-  Heating = false;
-
-  delay(1000);
-  
   EEPROM.begin(512);
   readep();
   Serial.println("EepromData:");
@@ -253,7 +238,25 @@ void setup() {
   SetTemperature = eepromdata.setTemp;
   strcpy(ssidCl,eepromdata.wifinetwork);
   strcpy(passwordCl,eepromdata.wifipassword);
+
+  wifisetup();
   
+  Serial.print("----Flash Update try----");
+  update_ret= OtadriveUpdateFlash();
+  Serial.print("----Flash Update result----");
+  Serial.println(update_ret);
+
+
+  Serial.print("----Program Update try----");
+  update_ret= OtadriveUpdate();
+  Serial.print("----Program Update result----");
+  Serial.println(update_ret);
+  
+  pinMode(RELAY_PIN,OUTPUT);
+  digitalWrite(RELAY_PIN,LOW);
+  Heating = false;
+
+
   Serial.println(LittleFS.begin() ? "File system Ready" : "File System Failed!");
 
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
