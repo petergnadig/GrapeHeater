@@ -38,3 +38,4 @@ setInterval(function ( ) {
  let myTestArray = [myObj1, myObj2, myObj3];
  myJSON = JSON.stringify(myTestArray);
  localStorage.setItem("testJSON", myJSON);
+ 

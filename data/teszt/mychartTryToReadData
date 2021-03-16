@@ -22,23 +22,28 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 <script>
 var myJsonDatas = new Array();
-
+/*
 
 //console.log("length: "+myJsonDatas.length);
 $.getJSON( "data", function( myJson ) {
     //console.log(myJson);
+    myJsonDatas = JSON.parse(myJson);
     
     for (let index = 0; index < myJson.length; index++) {
-        myJsonDatas.push(myJson[index]);
-        
+        console.log(index);
+        console.log(myJson[index]);
+        var robj = myJson[index];
+        console.log(robj);
+        myJsonDatas.push(robj);
     }
-    console.log(myJsonDatas);
-
-
+    console.log("length2: "+myJsonDatas.length);
+    
+ });
+*/
 
 //console.log(myJsonDatas);
 //console.log("length3: "+myJsonDatas.length);
-/*
+
 var getJSON = function(url) {
   return new Promise(
     function(resolve, reject) 
@@ -67,7 +72,7 @@ getJSON("http://127.0.0.1/data").then(function(data) { // Replace <URL> With you
 }, function(status) { //error detection....
   alert('Something went wrong.');
 });
-*/
+
 
 
 
@@ -81,32 +86,32 @@ console.log(text);
 obj.forEach(element => {
     console.log(element.name);
 });*/
-
+/*
 //labelsArray feltöltése a kiolvasott adatokkal
 var labelArray = new Array();
-    myJsonDatas.forEach(element => {
-    labelArray.push(element.time/1000/60);
+myJsonDatas.forEach(element => {
+    labelArray.push(element.time);
 });
 //dataArray feltöltése a kiolvasott adatokkal
 var dataArray = new Array();
     myJsonDatas.forEach(element => {
+    console.log("element");
     dataArray.push(element.T1);
-    //console.log("aaaaa");
 });
-
+*/
 var ctx = document.getElementById('myChart');
 var myChart = new Chart(ctx, {
     type: 'bar',
     data: {
-        //labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+        labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
         //Labels megkapja a labelArray-t
-        labels: labelArray,
+        //labels: labelArray,
         
         datasets: [{
             label: '# of Votes',
-            //data: [12, 19, 3, 5, 2, 3],
+            data: [12, 19, 3, 5, 2, 3],
             //data megkapja a dataArray-t
-            data: dataArray,
+            //data: dataArray,
             backgroundColor: [
                 'rgba(255, 99, 132, 0.2)',
                 'rgba(54, 162, 235, 0.2)',
@@ -135,7 +140,6 @@ var myChart = new Chart(ctx, {
             }]
         }
     }
-});
 });
 </script>
 </html>
