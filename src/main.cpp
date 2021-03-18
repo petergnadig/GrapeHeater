@@ -185,7 +185,7 @@ void prepJsonResponseFile() {
   int jsoncounter = cdatacounter++;
   jsoncounter = jsoncounter & CHARTDATANO;
   int count =0;
-  file.println("{");
+  file.println("[");
   while (count<= CHARTDATANO) {
     file.print("{\"time\":\"");
       file.print(chartdata[jsoncounter].time);
@@ -207,7 +207,7 @@ void prepJsonResponseFile() {
     jsoncounter++;
     jsoncounter = jsoncounter & CHARTDATANO;
   }
-  file.println("}");
+  file.println("]");
   file.close();
   file=LittleFS.open("data.json", "r");    
   file.close();
