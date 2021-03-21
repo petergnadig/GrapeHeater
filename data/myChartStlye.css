@@ -1,8 +1,6 @@
 .buttonHolder{
     display: flex;
     justify-content: left;
-    
-    /*margin: 5vh;*/
 }
 .buttonHolder button{
     margin: 1vh;

@@ -97,6 +97,14 @@ function removeAllData(chart) {
     }
 }
 
+function removeFirstData(chart) {
+    chart.data.labels.shift();
+    chart.data.datasets.forEach((dataset) => {
+        dataset.data.shift();
+    });
+    chart.update();
+}
+
 function addLotOfData(chart, newLabels, newDatas) {
     for (let i = 0; i < newLabels.length; i++) {
         addData(chart, newLabels[i], newDatas[i]);
