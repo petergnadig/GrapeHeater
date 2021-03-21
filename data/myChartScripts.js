@@ -155,7 +155,7 @@ var getJSON = function (url) {
         });
 };
 //http://127.0.0.1/data
-getJSON("data2").then(function (data) {
+getJSON("data").then(function (data) {
     myJsonDatas = data;
     console.log(myJsonDatas);
     removeAllData(myChart);

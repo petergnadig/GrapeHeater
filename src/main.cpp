@@ -192,22 +192,22 @@ void prepJsonResponseFile() {
   int count =0;
   file.println("[");
   while (count< CHARTDATANO) {
-    file.print("{\"time\":\"");
+    if (count>0) {file.println(",");}
+    file.print("{\"time\":");
       file.print(chartdata[jsoncounter].time);
-      file.print("\",");
-    file.print("\"ST\":\"");
+      file.print(",");
+    file.print("\"ST\":");
       file.print(chartdata[jsoncounter].settemp);
-      file.print("\",");
-    file.print("\"T1\":\"");
+      file.print(",");
+    file.print("\"T1\":");
       file.print(chartdata[jsoncounter].temp1);
-      file.print("\",");
-    file.print("\"T2\":\"");
+      file.print(",");
+    file.print("\"T2\":");
       file.print(chartdata[jsoncounter].temp2);
-      file.print("\",");
-    file.print("\"HE\":\"");
+      file.print(",");
+    file.print("\"HE\":");
       file.print(chartdata[jsoncounter].futes);
-      file.print("\"}");
-    file.println();
+      file.print("}");
     count++;
     jsoncounter++;
     jsoncounter = jsoncounter & (CHARTDATANO-1);
@@ -343,6 +343,11 @@ void setup() {
 
   server.on("/myChartScripts.js", HTTP_GET, [](AsyncWebServerRequest *request) {
     AsyncWebServerResponse* response = request->beginResponse(LittleFS, "/myChartScripts.js", "text"); 
+    request->send(response);
+  });
+
+  server.on("/chart/myChartStlye.css", HTTP_GET, [](AsyncWebServerRequest *request) {
+    AsyncWebServerResponse* response = request->beginResponse(LittleFS, "/chart/myChartStlye.css", "text/css"); 
     request->send(response);
   });
 
