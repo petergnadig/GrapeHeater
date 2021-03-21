@@ -1,0 +1,7 @@
+.buttonHolder{
+    display: flex;
+    justify-content: left;
+}
+.buttonHolder button{
+    margin: 1vh;
+}
