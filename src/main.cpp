@@ -18,7 +18,8 @@
 #define RELAY_PIN 5
 #define ONE_WIRE_BUS 4 // Gyulai kütyün ez 4!!!!
 
-#define CHARTDATANO 15
+#define CHARTDATANO 1024 // 5 percenként kb két hét adatát tudja tárolni
+#define CHARTUPDATEMILLIS 30000 // 300.000 millisec kb 5 perc 
 
 int update_ret;
 
@@ -33,6 +34,7 @@ char ssidCl[33] = "12otb24f";
 char passwordCl[65] = "Sukoro70";
 const char *ssidAp = "SzolloMelegito";
 const char *passwordAp = "Gyula5700";
+const char ssid[23] = "szollo";
 
 String inputMessage;
 char newnetwork[33];
@@ -57,7 +59,7 @@ typedef struct Chartstruct{
   float temp2 = 0;
   bool futes = false;
 };
-Chartstruct chartdata[1024];
+Chartstruct chartdata[CHARTDATANO];
 int cdatacounter=0;
 unsigned long time_last_update=millis();
 
@@ -75,7 +77,8 @@ void readep() {
 }
 
 void wifisetup() {
-  WiFi.hostname("SZOLLOMELEGITO");
+  WiFi.setAutoConnect(false);
+  WiFi.hostname(ssid);
   Serial.print("WifI SSID:");
   Serial.println(ssidCl);
   Serial.print("WifI pass:");
@@ -110,6 +113,7 @@ void wifisetup() {
     Serial.println(myIP);
     Serial.printf("MAC address = %s\n", WiFi.softAPmacAddress().c_str());
   }  
+  Serial.printf("New hostname: %s\n", WiFi.hostname().c_str());
 }
 
 float getTempFloat(int DeviceNumber) {
@@ -178,15 +182,16 @@ void printAddress(DeviceAddress deviceAddress)
 }
 
 void prepJsonResponseFile() {
+  Serial.println("---Prep Json---");
   if (LittleFS.exists("data.json")) {
     LittleFS.remove("data.json");
   }
   File file=LittleFS.open("data.json", "w");
   int jsoncounter = cdatacounter++;
-  jsoncounter = jsoncounter & CHARTDATANO;
+  jsoncounter = jsoncounter & (CHARTDATANO-1);
   int count =0;
   file.println("[");
-  while (count<= CHARTDATANO) {
+  while (count< CHARTDATANO) {
     file.print("{\"time\":\"");
       file.print(chartdata[jsoncounter].time);
       file.print("\",");
@@ -205,7 +210,7 @@ void prepJsonResponseFile() {
     file.println();
     count++;
     jsoncounter++;
-    jsoncounter = jsoncounter & CHARTDATANO;
+    jsoncounter = jsoncounter & (CHARTDATANO-1);
   }
   file.println("]");
   file.close();
@@ -336,8 +341,13 @@ void setup() {
     request->send(response);
   });
 
-  server.on("/chart/chart.css", HTTP_GET, [](AsyncWebServerRequest *request) {
-    AsyncWebServerResponse* response = request->beginResponse(LittleFS, "/chart/chart.css", "text/css"); 
+  server.on("/myChartScripts.js", HTTP_GET, [](AsyncWebServerRequest *request) {
+    AsyncWebServerResponse* response = request->beginResponse(LittleFS, "/myChartScripts.js", "text"); 
+    request->send(response);
+  });
+
+  server.on("/chart/Chart.css", HTTP_GET, [](AsyncWebServerRequest *request) {
+    AsyncWebServerResponse* response = request->beginResponse(LittleFS, "/chart/Chart.css", "text/css"); 
     request->send(response);
   });
 
@@ -348,6 +358,11 @@ void setup() {
 
   server.on("/chart/moment.js", HTTP_GET, [](AsyncWebServerRequest *request) {
     AsyncWebServerResponse* response = request->beginResponse(LittleFS, "/chart/moment.js", "text"); 
+    request->send(response);
+  });
+
+  server.on("/favicon.ico", HTTP_GET, [](AsyncWebServerRequest *request) {
+    AsyncWebServerResponse* response = request->beginResponse(LittleFS, "/favicon.ico", "image/png"); 
     request->send(response);
   });
 
@@ -400,5 +415,5 @@ void loop() {
   Serial.print(chartdata[cdatacounter].futes);
   Serial.println();
   cdatacounter++;
-  cdatacounter=cdatacounter & CHARTDATANO;
+  cdatacounter=cdatacounter & (CHARTDATANO-1);
 }

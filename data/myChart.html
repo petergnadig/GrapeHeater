@@ -6,11 +6,11 @@
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1">
       <link rel="stylesheet" type="text/css" href="/chart/Chart.css">
-	<script src="/chart/Chart.js"></script>
+	  <script src="/chart/Chart.js"></script>
     </head>
     <body>
         <form action="/index.html">
-            <input type="submit" value="Vissza" />
+            <input type="submit" value="VISSZA" />
         </form>
         <button id="removeALLData" onclick="removeAllData(myChart)">RemoveALL</button>
         <button id="addLotOfData" onclick="addLotOfData(myChart, label2, data2)">addLotOfData</button>
@@ -19,7 +19,9 @@
 <div class="chart-container" style="position: relative; height:40vh; width:80vw">
     <canvas id="myChart"></canvas>
 </div>
+
+<p id="raw data"></p>
+
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 <script type="text/javascript" src="myChartScripts.js"></script>
-
 </html>
