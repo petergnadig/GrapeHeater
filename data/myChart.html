@@ -6,14 +6,17 @@
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1">
       <link rel="stylesheet" type="text/css" href="/chart/Chart.css">
+      <link rel="stylesheet" type="text/css" href="myChartStlye.css">
 	<script src="/chart/Chart.js"></script>
     </head>
     <body>
         <form action="/index.html">
             <input type="submit" value="Vissza" />
         </form>
-        <button id="removeALLData" onclick="removeAllData(myChart)">RemoveALL</button>
-        <button id="addLotOfData" onclick="addLotOfData(myChart, label2, data2)">addLotOfTestData</button>
+        <div class="buttonHolder">
+            <button id="removeALLData" onclick="removeAllData(myChart)">RemoveALL</button>
+            <button id="addLotOfData" onclick="addLotOfData(myChart, label2, data2)">addLotOfTestData</button>
+        </div>
     </body>
    
 <div class="chart-container" style="position: relative; height:40vh; width:80vw">
