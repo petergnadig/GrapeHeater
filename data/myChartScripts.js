@@ -64,12 +64,12 @@ var myChart = new Chart(ctx, {
     }
 });
 //teszt töltéshez adatok
-/*var peti = 'Peti';
+var peti = 'Peti';
 var tizenot = 15;
 addData(myChart, peti, tizenot);
 
 var label2 = ['red', 'blue', 'green'];
-var data2 = [10, 20, 15];*/
+var data2 = [10, 20, 15];
 
 function addData(chart, label, data) {
     chart.data.labels.push(label);
