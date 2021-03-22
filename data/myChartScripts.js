@@ -1,10 +1,6 @@
 var myJsonDatas = new Array();
 var labelArray = new Array();
 
-//teszt adatok:
-var label2 = ['red', 'blue', 'green'];
-var data2 = [10, 20, 15];
-
 var ctx = document.getElementById('myChart');
 var myChart = new Chart(ctx, {
     type: 'line',
