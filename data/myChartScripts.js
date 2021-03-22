@@ -1,6 +1,5 @@
 var myJsonDatas = new Array();
 var labelArray = new Array();
-var dataArray = new Array();
 
 //teszt adatok:
 var label2 = ['red', 'blue', 'green'];
@@ -11,38 +10,32 @@ var myChart = new Chart(ctx, {
     type: 'line',
     data: {
         labels: labelArray,
-        datasets: [{
-            label: '1st temp',
-            data: dataArray,
-            backgroundColor: [
-                'rgba(255, 255, 255, 0.2)'
-            ],
-            borderColor: [
-                'rgba(255, 99, 132, 1)'
-            ],
-            borderWidth: 1
-        },{
-            label: '2nd temp',
-            data: [20, 30, 20, 30],
-            backgroundColor: [
-                'rgba(255, 255, 255, 0.2)'
-            ],
-            borderColor: [
-                'rgba(83, 51, 237, 1)'
-            ],
-            borderWidth: 1
-        },{
-            label: 'set temp',
-            data: [24, 24, 24, 24],
-            backgroundColor: [
-                'rgba(255, 255, 255, 0.2)'
-            ],
-            borderColor: [
-                'rgba(0, 0, 0, 0)'
-            ],
-            borderWidth: 1
-        },
-    
+        datasets: 
+        [
+            {
+                label: '1st temp',
+                data: [],
+                backgroundColor: ['rgba(255, 255, 255, 0.2)'],
+                borderColor: ['rgba(255, 99, 132, 1)'],
+                borderWidth: 1,
+                pointRadius: 0
+            },
+            {
+                label: '2nd temp',
+                data: [],
+                backgroundColor: ['rgba(255, 255, 255, 0.2)'],
+                borderColor: ['rgba(83, 51, 237, 1)'],
+                borderWidth: 1,
+                pointRadius: 0
+            },
+            {
+                label: 'set temp',
+                data: [],
+                backgroundColor: ['rgba(255, 255, 255, 0.2)'],
+                borderColor: ['rgba(0, 0, 0, 0.2)'],
+                borderWidth: 1,
+                pointRadius: 0
+            },
         ]
     },
     options: {
@@ -58,14 +51,38 @@ var myChart = new Chart(ctx, {
 
 
 
+function chartUpdate(chart){
+    chart.update();
+}
 
-function addData(chart, label, data) {
+function addOneData(chart, label, data) {
     chart.data.labels.push(label);
     chart.data.datasets.forEach((dataset) => {
         dataset.data.push(data);
     });
     chart.update();
 }
+
+function addLabelData(chart, label){
+    chart.data.labels.push(label);
+    
+}
+function addDataData(chart, data, lineIndex){
+    chart.data.datasets[lineIndex].data.push(data);
+    
+}
+
+function addLotOfLabelData(chart, newLabels){
+    for (let i = 0; i < newLabels.length; i++) {
+        addLabelData(chart, newLabels[i]);
+    }
+}
+function addLotOfDataData(chart, newData, lineIndex){
+    for (let i = 0; i < newData.length; i++) {
+        addDataData(chart, newData[i], lineIndex);
+    }
+}
+
 
 function removeData(chart) {
     chart.data.labels.pop();
@@ -93,15 +110,7 @@ function removeFirstData(chart) {
     chart.update();
 }
 
-function addLotOfData(chart, newLabels, newDatas) {
-    for (let i = 0; i < newLabels.length; i++) {
-        addData(chart, newLabels[i], newDatas[i]);
-    }
-}
 
-function refres(){
-    //TODO
-}
 
 function formatDate(date) {
     var d = new Date(date);
@@ -122,7 +131,7 @@ function formatDate(date) {
         min = '0' + min;
     if (sec.length < 2)
         sec = '0' + sec;
-    return [year, month, day, hour, min, sec].join('-');
+    return [ month, day, hour, min, sec].join('-');
 }
 
 function currentMeasurementDateFunction(myJsonDatas, i){
@@ -133,41 +142,49 @@ function currentMeasurementDateFunction(myJsonDatas, i){
     return currentMeasurementDate = new Date(sysMiliSec - (myJsonDatas[myJsonDatas.length - 1].time - myJsonDatas[i].time));
 }
 
+function UpdateChartNewDatas(){
+    var getJSON = function (url) {
+        return new Promise(
+            function (resolve, reject) {
+                var xhr = new XMLHttpRequest();
+                xhr.open('get', url, true);
+                xhr.responseType = 'json';
+                xhr.onload = function () {
+                    var status = xhr.status;
+                    if (status == 200) {
+                        resolve(xhr.response);
+                    }
+                    else {
+                        reject(status);
+                    }
+                };
+                xhr.send();
+            });
+    };
 
-var getJSON = function (url) {
-    return new Promise(
-        function (resolve, reject) {
-            var xhr = new XMLHttpRequest();
-            xhr.open('get', url, true);
-            xhr.responseType = 'json';
-            xhr.onload = function () {
-                var status = xhr.status;
-                if (status == 200) {
-                    resolve(xhr.response);
-                }
-                else {
-                    reject(status);
-                }
-            };
-            xhr.send();
-        });
-};
-//http://127.0.0.1/data
-getJSON("data").then(function (data) {
-    myJsonDatas = data;
-    console.log(myJsonDatas);
-    removeAllData(myChart);
-    var myJDtimes = new Array();
-    var myJDtemp = new Array();
+    getJSON("data").then(function (data) {
+        myJsonDatas = data;
+        removeAllData(myChart);
+        var myJDtimes = new Array();
+        var myJDtempT1 = new Array();
+        var myJDtempT2 = new Array();
+        var myJDtempST = new Array();
+    
+        for (let i = 0; i < myJsonDatas.length; i++) {
+            myJDtimes.push(formatDate(currentMeasurementDateFunction(myJsonDatas,i)));
+            myJDtempT1.push(myJsonDatas[i].T1);
+            myJDtempT2.push(myJsonDatas[i].T2);
+            myJDtempST.push(myJsonDatas[i].ST);
+        }
+        addLotOfLabelData(myChart, myJDtimes);
+        addLotOfDataData(myChart, myJDtempT1, 0);
+        addLotOfDataData(myChart, myJDtempT2, 1);
+        addLotOfDataData(myChart, myJDtempST, 2);
+        chartUpdate(myChart);
+    }, function (status) {
+        alert('Something went wrong.');
+    });
+}
 
-    for (let i = 0; i < myJsonDatas.length; i++) {
-        myJDtimes.push(formatDate(currentMeasurementDateFunction(myJsonDatas,i)));
-        myJDtemp.push(myJsonDatas[i].T1);
-    }
-    addLotOfData(myChart, myJDtimes, myJDtemp);
-}, function (status) { //error detection....
-    alert('Something went wrong.');
-});
 
-console.log("aaaaaaa");
-
+UpdateChartNewDatas();

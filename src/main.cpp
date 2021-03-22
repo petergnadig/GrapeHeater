@@ -193,7 +193,7 @@ void prepJsonResponseFile() {
     LittleFS.remove("data.json");
   }
   File file=LittleFS.open("data.json", "w");
-  int jsoncounter = cdatacounter+1;
+  int jsoncounter = cdatacounter;
   jsoncounter = jsoncounter & (CHARTDATANO-1);
   int count =0;
   file.println("[");
@@ -353,8 +353,8 @@ void setup() {
     request->send(response);
   });
 
-  server.on("/chart/myChartStlye.css", HTTP_GET, [](AsyncWebServerRequest *request) {
-    AsyncWebServerResponse* response = request->beginResponse(LittleFS, "/chart/myChartStlye.css", "text/css"); 
+  server.on("/myChartStyle.css", HTTP_GET, [](AsyncWebServerRequest *request) {
+    AsyncWebServerResponse* response = request->beginResponse(LittleFS, "/myChartStyle.css", "text/css"); 
     request->send(response);
   });
 
