@@ -1,22 +1,10 @@
 var myJsonDatas = new Array();
-
-/* Teszt olvasás */
-// Retrieving data:
-text = localStorage.getItem("testJSON");
-obj = JSON.parse(text);
-console.log(obj);
-//labelsArray feltöltése a kiolvasott adatokkal
 var labelArray = new Array();
-obj.forEach(element => {
-    labelArray.push(element.name);
-    //labelArray.push(element.time/1000/60);
-});
-//dataArray feltöltése a kiolvasott adatokkal
 var dataArray = new Array();
-obj.forEach(element => {
-    dataArray.push(element.vote);
-    //dataArray.push(element.T1);
-});
+
+//teszt adatok:
+var label2 = ['red', 'blue', 'green'];
+var data2 = [10, 20, 15];
 
 var ctx = document.getElementById('myChart');
 var myChart = new Chart(ctx, {
@@ -24,28 +12,38 @@ var myChart = new Chart(ctx, {
     data: {
         labels: labelArray,
         datasets: [{
-            label: '# of Temp',
+            label: '1st temp',
             data: dataArray,
-            //borderColor: [rgba(255,99,132,0.2)],
             backgroundColor: [
                 'rgba(255, 255, 255, 0.2)'
             ],
-            /*  'rgba(255, 99, 132, 0.2)',
-                'rgba(54, 162, 235, 0.2)',
-                'rgba(255, 206, 86, 0.2)',
-                'rgba(75, 192, 192, 0.2)',
-                'rgba(153, 102, 255, 0.2)',
-                'rgba(255, 159, 64, 0.2)'*/
             borderColor: [
                 'rgba(255, 99, 132, 1)'
             ],
-            /*  ,'rgba(54, 162, 235, 1)',
-                'rgba(255, 206, 86, 1)',
-                'rgba(75, 192, 192, 1)',
-                'rgba(153, 102, 255, 1)',
-                'rgba(255, 159, 64, 1)'*/
             borderWidth: 1
-        }]
+        },{
+            label: '2nd temp',
+            data: [20, 30, 20, 30],
+            backgroundColor: [
+                'rgba(255, 255, 255, 0.2)'
+            ],
+            borderColor: [
+                'rgba(83, 51, 237, 1)'
+            ],
+            borderWidth: 1
+        },{
+            label: 'set temp',
+            data: [24, 24, 24, 24],
+            backgroundColor: [
+                'rgba(255, 255, 255, 0.2)'
+            ],
+            borderColor: [
+                'rgba(0, 0, 0, 0)'
+            ],
+            borderWidth: 1
+        },
+    
+        ]
     },
     options: {
         scales: {
@@ -57,13 +55,9 @@ var myChart = new Chart(ctx, {
         }
     }
 });
-//teszt töltéshez adatok
-var peti = 'Peti';
-var tizenot = 15;
-addData(myChart, peti, tizenot);
 
-var label2 = ['red', 'blue', 'green'];
-var data2 = [10, 20, 15];
+
+
 
 function addData(chart, label, data) {
     chart.data.labels.push(label);
@@ -103,6 +97,10 @@ function addLotOfData(chart, newLabels, newDatas) {
     for (let i = 0; i < newLabels.length; i++) {
         addData(chart, newLabels[i], newDatas[i]);
     }
+}
+
+function refres(){
+    //TODO
 }
 
 function formatDate(date) {
@@ -171,4 +169,5 @@ getJSON("data").then(function (data) {
     alert('Something went wrong.');
 });
 
+console.log("aaaaaaa");
 
