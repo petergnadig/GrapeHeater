@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
+#include <ESP8266mDNS.h>
 #include <ESPAsyncTCP.h>
 #include <ESPAsyncWebServer.h>
 #include <FS.h>
@@ -63,6 +64,8 @@ Chartstruct chartdata[CHARTDATANO];
 int cdatacounter=0;
 unsigned long time_last_update=millis();
 
+unsigned long wifi_last_check=millis();
+
 bool Heating = false;
 
 void(* resetFunc) (void) = 0;//declare reset function at address 0
@@ -78,12 +81,14 @@ void readep() {
 
 void wifisetup() {
   WiFi.setAutoConnect(false);
+  WiFi.mode(WIFI_AP_STA);
   WiFi.hostname(ssid);
   Serial.print("WifI SSID:");
   Serial.println(ssidCl);
   Serial.print("WifI pass:");
   Serial.println(passwordCl);
   WiFi.begin(ssidCl, passwordCl);
+  MDNS.begin(ssid);
   Serial.print("Connecting");
   int Try=30;
   while (WiFi.status() != WL_CONNECTED && Try>=0 )
@@ -100,20 +105,21 @@ void wifisetup() {
     Serial.print("Connected, IP address: ");
     myIP = WiFi.localIP();
     Serial.println(myIP);
-    WiFi.printDiag(Serial);
   }
   else
-  {  
-    Serial.print("Configuring access point…");
-    WiFi.mode(WIFI_AP);
-    WiFi.softAPdisconnect(true);
-    Serial.println(WiFi.softAP(ssidAp,passwordAp,6,false,2) ? "Ready" : "Failed!");
-    myIP = WiFi.softAPIP();
-    Serial.print("AP IP address: ");
-    Serial.println(myIP);
-    Serial.printf("MAC address = %s\n", WiFi.softAPmacAddress().c_str());
-  }  
+  { 
+    Serial.println("Network connection failed !!");
+  } 
+  Serial.print("Configuring access point…");
+  WiFi.softAPdisconnect(true);
+  Serial.println(WiFi.softAP(ssidAp,passwordAp,6,false,2) ? "  AP is Ready" : "  AP Start Failed!");
+  myIP = WiFi.softAPIP();
+  Serial.print("AP IP address: ");
+  Serial.println(myIP);
+  Serial.printf("MAC address = %s\n", WiFi.softAPmacAddress().c_str());
+    
   Serial.printf("New hostname: %s\n", WiFi.hostname().c_str());
+  
 }
 
 float getTempFloat(int DeviceNumber) {
@@ -187,7 +193,7 @@ void prepJsonResponseFile() {
     LittleFS.remove("data.json");
   }
   File file=LittleFS.open("data.json", "w");
-  int jsoncounter = cdatacounter++;
+  int jsoncounter = cdatacounter+1;
   jsoncounter = jsoncounter & (CHARTDATANO-1);
   int count =0;
   file.println("[");
@@ -312,7 +318,8 @@ void setup() {
       }
     } 
     if (eempromchange) {writeep();}
-    if (wifichange) {resetFunc();}
+    //if (wifichange) {resetFunc();}
+    if (wifichange) {wifisetup();}
     AsyncWebServerResponse* response = request->beginResponse(LittleFS, "/index.html", String(), false, prephtml);
     request->send(response);
   });
@@ -405,7 +412,6 @@ void loop() {
   chartdata[cdatacounter].temp1 = T[1];
   chartdata[cdatacounter].temp2 = T[2];
   chartdata[cdatacounter].futes = Heating;
-
   Serial.print("DC: ");
   Serial.print(cdatacounter);
   Serial.print(" Time: ");
@@ -419,6 +425,19 @@ void loop() {
   Serial.print(" Heating: ");
   Serial.print(chartdata[cdatacounter].futes);
   Serial.println();
+
   cdatacounter++;
   cdatacounter=cdatacounter & (CHARTDATANO-1);
+  
+  Serial.print(" WiFi mode: ");
+  Serial.print(WiFi.getMode());
+  Serial.print(" WiFi status: ");
+  Serial.print(WiFi.status());
+  Serial.println();
+
+  if (WiFi.status()!= WL_CONNECTED && (millis()-wifi_last_check)>=100000) {
+    wifi_last_check=millis();
+    wifisetup();
+  }  
+ 
 }
