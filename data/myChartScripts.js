@@ -186,7 +186,8 @@ function removeGif() {
     x.setAttribute("id","gif");
     x.setAttribute("src", "loading.gif");
     x.setAttribute("alt", "Loading");
-    document.body.appendChild(x);
+    //document.gifDiv.appendChild(x);
+    $( "#gifDiv" ).append( x );
   }
 
 function UpdateChartNewDatas(){
