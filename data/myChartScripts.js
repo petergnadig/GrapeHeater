@@ -2,6 +2,17 @@ var myJsonDatas = new Array();
 var labelArray = new Array();
 
 var ctx = document.getElementById('myChart');
+
+//let gif= 'loading.gif';
+//$('#gif').attr('src', gif);
+
+//var myGif =new GIF();
+//myGif.load("loading-buffering.gif");
+//ctx.drawImage(myGif.image,0,0); // will draw the playing gif image
+
+//ctx.drawImage(gif.src,0,0);
+
+
 var myChart = new Chart(ctx, {
     type: 'line',
     data: {
@@ -76,6 +87,7 @@ var myChart = new Chart(ctx, {
 
 function chartUpdate(chart){
     chart.update();
+    
 }
 
 function addOneData(chart, label, data) {
@@ -164,8 +176,21 @@ function currentMeasurementDateFunction(myJsonDatas, i){
     //return: rendszeridő - (utolsó mérés - aktuális mérés) azaz msot hoz képest az aktuális mérés mikor történt (milisec)
     return currentMeasurementDate = new Date(sysMiliSec - (myJsonDatas[myJsonDatas.length - 1].time - myJsonDatas[i].time));
 }
+function removeGif() {
+    var myobj = document.getElementById("gif");
+    myobj.remove();
+  }
+
+  function createGif() {
+    var x = document.createElement("img");
+    x.setAttribute("id","gif");
+    x.setAttribute("src", "loading.gif");
+    x.setAttribute("alt", "Loading");
+    document.body.appendChild(x);
+  }
 
 function UpdateChartNewDatas(){
+
     var getJSON = function (url) {
         return new Promise(
             function (resolve, reject) {
@@ -207,10 +232,17 @@ function UpdateChartNewDatas(){
         addLotOfDataData(myChart, myJDtempST, 2);
         addLotOfDataData(myChart, myJDHE, 3);
         chartUpdate(myChart);
+        //setTimeout(() => {  console.log("World!"); }, 5000);
+        //setTimeout(() => removeGif(), 5000);
+        removeGif();
     }, function (status) {
         alert('Something went wrong.');
     });
 }
 
+function UpdateButton(){
+    createGif();
+    UpdateChartNewDatas();
+}
 
 UpdateChartNewDatas();

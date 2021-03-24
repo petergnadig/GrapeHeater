@@ -357,6 +357,11 @@ void setup() {
     AsyncWebServerResponse* response = request->beginResponse(LittleFS, "/myChartStyle.css", "text/css"); 
     request->send(response);
   });
+//itt nyultam bele
+server.on("/loading.gif", HTTP_GET, [](AsyncWebServerRequest *request) {
+    AsyncWebServerResponse* response = request->beginResponse(LittleFS, "/loading.gif", "img"); 
+    request->send(response);
+  });
 
   server.on("/chart/Chart.css", HTTP_GET, [](AsyncWebServerRequest *request) {
     AsyncWebServerResponse* response = request->beginResponse(LittleFS, "/chart/Chart.css", "text/css"); 
