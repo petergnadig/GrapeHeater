@@ -32,15 +32,42 @@ var myChart = new Chart(ctx, {
                 borderWidth: 1,
                 pointRadius: 0
             },
+            {
+                label: 'Heating',
+                data: [],
+                backgroundColor: ['rgba(255, 255, 255, 0.2)'],
+                borderColor: ['rgba(0, 255, 0, 0.5)'],
+                borderWidth: 1,
+                pointRadius: 0,
+                yAxisID: 'B'
+            },
         ]
     },
     options: {
         scales: {
-            yAxes: [{
-                ticks: {
-                    beginAtZero: true
+            yAxes: 
+            [
+                {
+                    id: 'A',
+                    type: 'linear',
+                    position: 'left',
+                    ticks: 
+                    {
+                        beginAtZero: true
+                    }
+                },
+                {
+                    id: 'B',
+                    type: 'linear',
+                    position: 'right',
+                    ticks: 
+                    {
+                        max: 2,
+                        min: 0
+                    },
+                    display: false
                 }
-            }]
+            ]
         }
     }
 });
@@ -165,17 +192,20 @@ function UpdateChartNewDatas(){
         var myJDtempT1 = new Array();
         var myJDtempT2 = new Array();
         var myJDtempST = new Array();
+        var myJDHE = new Array();
     
         for (let i = 0; i < myJsonDatas.length; i++) {
             myJDtimes.push(formatDate(currentMeasurementDateFunction(myJsonDatas,i)));
             myJDtempT1.push(myJsonDatas[i].T1);
             myJDtempT2.push(myJsonDatas[i].T2);
             myJDtempST.push(myJsonDatas[i].ST);
+            myJDHE.push(myJsonDatas[i].HE);
         }
         addLotOfLabelData(myChart, myJDtimes);
         addLotOfDataData(myChart, myJDtempT1, 0);
         addLotOfDataData(myChart, myJDtempT2, 1);
         addLotOfDataData(myChart, myJDtempST, 2);
+        addLotOfDataData(myChart, myJDHE, 3);
         chartUpdate(myChart);
     }, function (status) {
         alert('Something went wrong.');
