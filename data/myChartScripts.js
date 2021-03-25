@@ -2,6 +2,17 @@ var myJsonDatas = new Array();
 var labelArray = new Array();
 
 var ctx = document.getElementById('myChart');
+
+//let gif= 'loading.gif';
+//$('#gif').attr('src', gif);
+
+//var myGif =new GIF();
+//myGif.load("loading-buffering.gif");
+//ctx.drawImage(myGif.image,0,0); // will draw the playing gif image
+
+//ctx.drawImage(gif.src,0,0);
+
+
 var myChart = new Chart(ctx, {
     type: 'line',
     data: {
@@ -32,15 +43,42 @@ var myChart = new Chart(ctx, {
                 borderWidth: 1,
                 pointRadius: 0
             },
+            {
+                label: 'Heating',
+                data: [],
+                backgroundColor: ['rgba(255, 255, 255, 0.2)'],
+                borderColor: ['rgba(0, 255, 0, 0.5)'],
+                borderWidth: 1,
+                pointRadius: 0,
+                yAxisID: 'B'
+            },
         ]
     },
     options: {
         scales: {
-            yAxes: [{
-                ticks: {
-                    beginAtZero: true
+            yAxes: 
+            [
+                {
+                    id: 'A',
+                    type: 'linear',
+                    position: 'left',
+                    ticks: 
+                    {
+                        beginAtZero: true
+                    }
+                },
+                {
+                    id: 'B',
+                    type: 'linear',
+                    position: 'right',
+                    ticks: 
+                    {
+                        max: 2,
+                        min: 0
+                    },
+                    display: false
                 }
-            }]
+            ]
         }
     }
 });
@@ -49,6 +87,7 @@ var myChart = new Chart(ctx, {
 
 function chartUpdate(chart){
     chart.update();
+    
 }
 
 function addOneData(chart, label, data) {
@@ -137,8 +176,22 @@ function currentMeasurementDateFunction(myJsonDatas, i){
     //return: rendszeridő - (utolsó mérés - aktuális mérés) azaz msot hoz képest az aktuális mérés mikor történt (milisec)
     return currentMeasurementDate = new Date(sysMiliSec - (myJsonDatas[myJsonDatas.length - 1].time - myJsonDatas[i].time));
 }
+function removeGif() {
+    var myobj = document.getElementById("gif");
+    myobj.remove();
+  }
+
+  function createGif() {
+    var x = document.createElement("img");
+    x.setAttribute("id","gif");
+    x.setAttribute("src", "loading.gif");
+    x.setAttribute("alt", "Loading");
+    //document.gifDiv.appendChild(x);
+    $( "#gifDiv" ).append( x );
+  }
 
 function UpdateChartNewDatas(){
+
     var getJSON = function (url) {
         return new Promise(
             function (resolve, reject) {
@@ -165,22 +218,32 @@ function UpdateChartNewDatas(){
         var myJDtempT1 = new Array();
         var myJDtempT2 = new Array();
         var myJDtempST = new Array();
+        var myJDHE = new Array();
     
         for (let i = 0; i < myJsonDatas.length; i++) {
             myJDtimes.push(formatDate(currentMeasurementDateFunction(myJsonDatas,i)));
             myJDtempT1.push(myJsonDatas[i].T1);
             myJDtempT2.push(myJsonDatas[i].T2);
             myJDtempST.push(myJsonDatas[i].ST);
+            myJDHE.push(myJsonDatas[i].HE);
         }
         addLotOfLabelData(myChart, myJDtimes);
         addLotOfDataData(myChart, myJDtempT1, 0);
         addLotOfDataData(myChart, myJDtempT2, 1);
         addLotOfDataData(myChart, myJDtempST, 2);
+        addLotOfDataData(myChart, myJDHE, 3);
         chartUpdate(myChart);
+        //setTimeout(() => {  console.log("World!"); }, 5000);
+        //setTimeout(() => removeGif(), 5000);
+        removeGif();
     }, function (status) {
         alert('Something went wrong.');
     });
 }
 
+function UpdateButton(){
+    createGif();
+    UpdateChartNewDatas();
+}
 
 UpdateChartNewDatas();

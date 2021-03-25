@@ -31,8 +31,8 @@ int deviceCount = 0;
 
 AsyncWebServer server(80);
 IPAddress myIP;
-char ssidCl[33] = "12otb24f";
-char passwordCl[65] = "Sukoro70";
+char ssidCl[33] = "DIGI_77e598";
+char passwordCl[65] = "aa21881a";
 const char *ssidAp = "SzolloMelegito";
 const char *passwordAp = "Gyula5700";
 const char ssid[23] = "szollo";
@@ -230,7 +230,7 @@ void setup() {
   Serial.println();
 
   EEPROM.begin(512);
-  readep();
+  //readep();
   Serial.println("EepromData:");
   Serial.println(eepromdata.setTemp);
   Serial.println(eepromdata.wifinetwork);
@@ -377,6 +377,36 @@ void setup() {
     AsyncWebServerResponse* response = request->beginResponse(LittleFS, "/favicon.ico", "image/png"); 
     request->send(response);
   });
+  //loading gif
+  server.on("/loading.gif", HTTP_GET, [](AsyncWebServerRequest *request) {
+    AsyncWebServerResponse* response = request->beginResponse(LittleFS, "/loading.gif", "img"); 
+    request->send(response);
+  });
+  
+    server.on("/index2.html", HTTP_GET, [](AsyncWebServerRequest *request) {
+    AsyncWebServerResponse* response = request->beginResponse(LittleFS, "/index2.html", "text/html"); 
+    request->send(response);
+  });
+
+  server.on("/index2Style.css", HTTP_GET, [](AsyncWebServerRequest *request) {
+    AsyncWebServerResponse* response = request->beginResponse(LittleFS, "/index2Style.css", "text/css"); 
+    request->send(response);
+  });
+  
+  server.on("/index2Scripts.js", HTTP_GET, [](AsyncWebServerRequest *request) {
+    AsyncWebServerResponse* response = request->beginResponse(LittleFS, "/index2Scripts.js", "text"); 
+    request->send(response);
+  });
+ 
+   server.on("/settings.html", HTTP_GET, [](AsyncWebServerRequest *request) {
+    AsyncWebServerResponse* response = request->beginResponse(LittleFS, "/settings.html", String(), false, prephtml);
+    request->send(response);
+  });
+
+  server.on("/settingsStyle.css", HTTP_GET, [](AsyncWebServerRequest *request) {
+    AsyncWebServerResponse* response = request->beginResponse(LittleFS, "/settingsStyle.css", "text/css"); 
+    request->send(response);
+  });
 
   server.begin();
   Serial.println("HTTP server started");
@@ -435,8 +465,9 @@ void loop() {
   Serial.print(WiFi.status());
   Serial.println();
 
-  if (WiFi.status()!= WL_CONNECTED && (millis()-wifi_last_check)>=100000) {
+  if (WiFi.status()!= WL_CONNECTED && (millis()-wifi_last_check)>=1000000) {
     wifi_last_check=millis();
+    Serial.println("Try to reconnect to the normal AP");
     wifisetup();
   }  
  
