@@ -25,7 +25,7 @@
             <tr>
                 <td><span id="temperature1">%TEMPERATURE1%</span> <sup class="units">°C</sup></td>
                 <td><span id="temperature2">%TEMPERATURE2%</span> <sup class="units">°C</sup></td>
-                <td></td>
+                <td><span id="settemp">%SETTEMP%</span> <sup class="units">°C</sup></td>
                 <td><span id="heating">%HEATING%</span></td>
             </tr>
         </table>
@@ -40,14 +40,15 @@
         </form>
     </div>
     
-
-    <div id="gifDiv">
-        <img id="gif" src="loading.gif">
+    <div class="container">
+        <div id="gifDiv">
+            <img id="gif" src="loading.gif">
+        </div>
+        <div class="chart-container" style="position: relative; height:40vh; width:80vw">
+            <canvas id="myChart"></canvas>
+        </div>
     </div>
 
-    <div class="chart-container" style="position: relative; height:40vh; width:80vw">
-        <canvas id="myChart"></canvas>
-    </div>
 
     
     

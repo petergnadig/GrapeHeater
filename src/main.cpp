@@ -31,8 +31,10 @@ int deviceCount = 0;
 
 AsyncWebServer server(80);
 IPAddress myIP;
-char ssidCl[33] = "DIGI_77e598";
-char passwordCl[65] = "aa21881a";
+//char ssidCl[33] = "DIGI_77e598";
+//char passwordCl[65] = "aa21881a";
+char ssidCl[33] = "12otb24e";
+char passwordCl[65] = "Sukoro70";
 const char *ssidAp = "SzolloMelegito";
 const char *passwordAp = "Gyula5700";
 const char ssid[23] = "szollo";
@@ -132,9 +134,9 @@ String getTempString(int DeviceNumber) {
   return String(temperature);
 }
 
-String getSetTemperature() {
-  float temperature = eepromdata.setTemp;
-  return String(temperature);
+String getSetTempString() {
+  float settemp = eepromdata.setTemp;
+  return String(settemp);
 }
 
 String getWifiNetwork() {
@@ -157,13 +159,16 @@ String prephtml(const String& var){
     return getTempString(2);
   } 
   else if (var == "TEMPSET") {
-    return getSetTemperature();
+    return getSetTempString();
   }
   else if (var == "WIFINETWORK") {
     return getWifiNetwork();
   }
   else if (var == "WIFIPASSWORD") {
     return getWifiPassword();
+  }
+  else if (var == "SETTEMP") {
+    return getSetTempString();
   }
   else if (var == "HEATING") {
     if (Heating) 
@@ -230,7 +235,7 @@ void setup() {
   Serial.println();
 
   EEPROM.begin(512);
-  //readep();
+  readep();
   Serial.println("EepromData:");
   Serial.println(eepromdata.setTemp);
   Serial.println(eepromdata.wifinetwork);
@@ -318,7 +323,6 @@ void setup() {
       }
     } 
     if (eempromchange) {writeep();}
-    //if (wifichange) {resetFunc();}
     if (wifichange) {wifisetup();}
     AsyncWebServerResponse* response = request->beginResponse(LittleFS, "/index.html", String(), false, prephtml);
     request->send(response);
@@ -330,6 +334,10 @@ void setup() {
 
   server.on("/temperature2", HTTP_GET, [](AsyncWebServerRequest *request){
     request->send_P(200, "text/plain", getTempString(2).c_str());
+  });
+
+  server.on("/settemp", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send_P(200, "text/plain", getSetTempString().c_str());
   });
 
   server.on("/heating", HTTP_GET, [](AsyncWebServerRequest *request){
@@ -384,7 +392,7 @@ void setup() {
   });
   
     server.on("/index2.html", HTTP_GET, [](AsyncWebServerRequest *request) {
-    AsyncWebServerResponse* response = request->beginResponse(LittleFS, "/index2.html", "text/html"); 
+    AsyncWebServerResponse* response = request->beginResponse(LittleFS, "/index2.html", String(), false, prephtml);
     request->send(response);
   });
 
