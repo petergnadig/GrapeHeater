@@ -382,6 +382,7 @@ void setup() {
     AsyncWebServerResponse* response = request->beginResponse(LittleFS, "/loading.gif", "img"); 
     request->send(response);
   });
+  /*
   //index2
   server.on("/index2.html", HTTP_GET, [](AsyncWebServerRequest *request) {
     AsyncWebServerResponse* response = request->beginResponse(LittleFS, "/index2.html", "text/html"); 
@@ -407,7 +408,7 @@ void setup() {
     AsyncWebServerResponse* response = request->beginResponse(LittleFS, "/settingsStyle.css", "text/css"); 
     request->send(response);
   });
-
+*/
 
 
   server.begin();
