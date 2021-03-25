@@ -70,3 +70,9 @@ html {
   justify-content: center;
   margin-top: auto;
 }
+
+.navigationButtonHolder{
+  display: flex;
+  justify-content: center;
+  margin: 1rem;
+}

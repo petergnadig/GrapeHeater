@@ -88,3 +88,9 @@ canvas{
   /*background-color: rgb(204, 200, 200);*/
   background-color: white;
 }
+
+.navigationButtonHolder{
+  display: flex;
+  justify-content: center;
+  margin: 1rem;
+}
