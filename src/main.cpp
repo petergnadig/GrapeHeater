@@ -357,11 +357,6 @@ void setup() {
     AsyncWebServerResponse* response = request->beginResponse(LittleFS, "/myChartStyle.css", "text/css"); 
     request->send(response);
   });
-//itt nyultam bele
-server.on("/loading.gif", HTTP_GET, [](AsyncWebServerRequest *request) {
-    AsyncWebServerResponse* response = request->beginResponse(LittleFS, "/loading.gif", "img"); 
-    request->send(response);
-  });
 
   server.on("/chart/Chart.css", HTTP_GET, [](AsyncWebServerRequest *request) {
     AsyncWebServerResponse* response = request->beginResponse(LittleFS, "/chart/Chart.css", "text/css"); 
@@ -382,6 +377,38 @@ server.on("/loading.gif", HTTP_GET, [](AsyncWebServerRequest *request) {
     AsyncWebServerResponse* response = request->beginResponse(LittleFS, "/favicon.ico", "image/png"); 
     request->send(response);
   });
+  //loading gif
+  server.on("/loading.gif", HTTP_GET, [](AsyncWebServerRequest *request) {
+    AsyncWebServerResponse* response = request->beginResponse(LittleFS, "/loading.gif", "img"); 
+    request->send(response);
+  });
+  //index2
+  server.on("/index2.html", HTTP_GET, [](AsyncWebServerRequest *request) {
+    AsyncWebServerResponse* response = request->beginResponse(LittleFS, "/index2.html", "text/html"); 
+    request->send(response);
+  });
+
+  server.on("/index2Style.css", HTTP_GET, [](AsyncWebServerRequest *request) {
+    AsyncWebServerResponse* response = request->beginResponse(LittleFS, "/index2Style.css", "text/css"); 
+    request->send(response);
+  });
+  
+  server.on("/index2Scripts.js", HTTP_GET, [](AsyncWebServerRequest *request) {
+    AsyncWebServerResponse* response = request->beginResponse(LittleFS, "/index2Scripts.js", "text"); 
+    request->send(response);
+  });
+  //settings
+   server.on("/settings.html", HTTP_GET, [](AsyncWebServerRequest *request) {
+    AsyncWebServerResponse* response = request->beginResponse(LittleFS, "/settings.html", "text/html"); 
+    request->send(response);
+  });
+
+  server.on("/settingsStyle.css", HTTP_GET, [](AsyncWebServerRequest *request) {
+    AsyncWebServerResponse* response = request->beginResponse(LittleFS, "/settingsStyle.css", "text/css"); 
+    request->send(response);
+  });
+
+
 
   server.begin();
   Serial.println("HTTP server started");

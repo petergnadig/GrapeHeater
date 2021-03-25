@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="settingsStyle.css">
+    <title>Document</title>
+</head>
+
+<body>
+    <h1>Settings</h1>
+    <div class="inputThings">
+        <form action="/submit">
+            <table>
+                <tr>
+                    <td><label for="newtemp">Új hőmérséklet:</label></td>
+                    <td><input type="number" id="newtemp" name="newtemp" value="%TEMPSET%"></td>
+                </tr>
+                <tr>
+                    <td><label for="wifinetwork">Wifi hálózat:</label></td>
+                    <td><input type="text" id="wifinetwork" name="wifinetwork" value="%WIFINETWORK%"></td>
+                </tr>
+                <tr>
+                    <td><label for="wifipassword">Wifi jelszó:</label></td>
+                    <td><input type="text" id="wifipassword" name="wifipassword" value="%WIFIPASSWORD%"></td>
+                </tr>
+            </table>
+            <input type="submit" value="Beállít">
+        </form>
+    </div>
+    <form action="/index.html">
+        <input type="submit" value="VISSZA" />
+    </form>
+
+</body>
+<script type="text/javascript" src="settingsScripts.js"></script>
+
+</html>
