@@ -53,8 +53,6 @@ html {
     padding-bottom: 15px;
   }
 
-  
-
   .inputThings{
     display: flex;
     justify-content: center;
@@ -76,7 +74,7 @@ table{
 }
 td{
     border: solid;
-    min-width: 10rem;
+    width: 25%;
 }
 
 .adatok{
@@ -85,7 +83,6 @@ td{
     align-items: center;
 }
 canvas{
-  /*background-color: rgb(204, 200, 200);*/
   background-color: white;
 }
 
@@ -99,3 +96,4 @@ canvas{
   display: flex;
   justify-content: center;
 }
+

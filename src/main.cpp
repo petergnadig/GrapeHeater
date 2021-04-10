@@ -31,10 +31,10 @@ int deviceCount = 0;
 
 AsyncWebServer server(80);
 IPAddress myIP;
-//char ssidCl[33] = "DIGI_77e598";
-//char passwordCl[65] = "aa21881a";
-char ssidCl[33] = "12otb24e";
-char passwordCl[65] = "Sukoro70";
+char ssidCl[33] = "DIGI_77e598";
+char passwordCl[65] = "aa21881a";
+//char ssidCl[33] = "12otb24e";
+//char passwordCl[65] = "Sukoro70";
 const char *ssidAp = "SzolloMelegito";
 const char *passwordAp = "Gyula5700";
 const char ssid[23] = "szollo";
@@ -396,8 +396,8 @@ void setup() {
     request->send(response);
   });
 
-  server.on("/index2Style.css", HTTP_GET, [](AsyncWebServerRequest *request) {
-    AsyncWebServerResponse* response = request->beginResponse(LittleFS, "/index2Style.css", "text/css"); 
+  server.on("/index2newStyle.css", HTTP_GET, [](AsyncWebServerRequest *request) {
+    AsyncWebServerResponse* response = request->beginResponse(LittleFS, "/index2newStyle.css", "text/css"); 
     request->send(response);
   });
   

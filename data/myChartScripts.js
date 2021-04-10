@@ -83,8 +83,6 @@ var myChart = new Chart(ctx, {
     }
 });
 
-
-
 function chartUpdate(chart){
     chart.update();
     
