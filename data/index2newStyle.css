@@ -83,11 +83,6 @@ input[type=number], input[type=text] {
     transform: translate(-50%, -50%);
 }
 
-.chart-container {
-    min-height: 50%;
-    min-width: 80%;
-}
-
 .chartHolder {
     overflow: auto;
     display: inline-block;

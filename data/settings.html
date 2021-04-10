@@ -6,13 +6,15 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" type="text/css" href="settingsStyle.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <title>Document</title>
 </head>
 
 <body>
     <h1>Settings</h1>
-    <div class="inputThings">
-        <form action="/submit">
+    <div class="container">
+        <form action="/submit" class="beallitForm">
             <table>
                 <tr>
                     <td><label for="newtemp">Új hőmérséklet:</label></td>
@@ -27,14 +29,14 @@
                     <td><input type="text" id="wifipassword" name="wifipassword" value="%WIFIPASSWORD%"></td>
                 </tr>
             </table>
-            <input type="submit" value="Beállít">
+            <input type="submit" id="beallitButton" class="btn btn-success" value="Beállít">
         </form>
     </div>
-    <div class="navigationButtonHolder">
-        <form action="/index.html">
+    <div class="container">
+        <form action="/index.html" class="inlineForm">
             <input type="submit" class="btn btn-success" value="VISSZA" />
         </form>
-        <form action="/index2.html">
+        <form action="/index2.html" class="inlineForm">
             <input type="submit" class="btn btn-success" value="index2" />
         </form>
     </div>
