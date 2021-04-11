@@ -22,6 +22,9 @@
 #define CHARTDATANO 1024 // 5 percenként kb két hét adatát tudja tárolni
 #define CHARTUPDATEMILLIS 30000 // 300.000 millisec kb 5 perc 
 
+//#include "MQTTClient.h"
+//#include "EspMQTTClient.h" // https://github.com/plapointe6/EspMQTTClient 
+
 int update_ret;
 
 OneWire oneWire(ONE_WIRE_BUS);
@@ -228,6 +231,25 @@ void prepJsonResponseFile() {
   file=LittleFS.open("data.json", "r");    
   file.close();
 }
+
+/*
+EspMQTTClient client(
+  "DIGI_77e598",
+  "aa21881a",
+  "broker.emqx.io",  // MQTT Broker server ip
+  "MQTTUsername",   // Can be omitted if not needed
+  "MQTTPassword",   // Can be omitted if not needed
+  "PetiTestClient"      // Client name that uniquely identify your device
+);
+
+void onConnectionEstablished() {
+
+  client.subscribe("HelloGP12345", [] (const String &payload)  {
+    Serial.println(payload);
+  });
+
+  client.publish("HelloGP12345", "This is a message");
+}*/
 
 void setup() {
   delay(1000);
@@ -478,5 +500,27 @@ void loop() {
     Serial.println("Try to reconnect to the normal AP");
     wifisetup();
   }  
- 
+ /*
+  client.loop();
+
+   if (client.isConnected()){
+    
+        Serial.print("MQTT  Temperature in Celsius : ");
+        Serial.println(chartdata[cdatacounter].temp1);
+       
+        Serial.println();
+        client.publish("HelloGP12345", String(chartdata[cdatacounter].temp1));
+
+        Serial.print("-> Time up sec: ");
+        //Serial.println(time_now/1000);
+  }
+  else {
+    
+    msqttLinkError++;
+    if (msqttLinkError==500000) {
+      Serial.println("MSQTT Not Connected Error!");
+      msqttLinkError=0;
+    }  
+  }*/
+
 }
