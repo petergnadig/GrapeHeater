@@ -27,6 +27,7 @@
 //------------------------------------------------------------------
 #include <PubSubClient.h>
 
+const char *brokerClientId = "Peti";
 const char *brokerUser = "Peti";
 const char *brokerPass = "Peti";
 const char *broker = "broker.emqx.io";
@@ -34,12 +35,11 @@ const char *outTopic = "HelloGP12345";
 
 WiFiClient espClient;
 PubSubClient client(espClient);
-long currentTime, lastTime;
 int count = 0;
 char messages[100];
 float LastSentTemp1 = 0;
 float LastSentTemp2 = 0;
-
+long currentTime, lastTime;
 //--------------------------------------------------------------------
 
 int update_ret;
@@ -111,7 +111,7 @@ void reconnect()
   {
     Serial.print("\nConnected to");
     Serial.println(broker);
-    if (client.connect("koikoikoi", brokerUser, brokerPass))
+    if (client.connect(brokerClientId, brokerUser, brokerPass))
     {
       Serial.println("Connected");
       Serial.println(broker);
@@ -297,24 +297,7 @@ void prepJsonResponseFile()
   file.close();
 }
 
-/*
-EspMQTTClient client(
-  "DIGI_77e598",
-  "aa21881a",
-  "broker.emqx.io",  // MQTT Broker server ip
-  "MQTTUsername",   // Can be omitted if not needed
-  "MQTTPassword",   // Can be omitted if not needed
-  "PetiTestClient"      // Client name that uniquely identify your device
-);
 
-void onConnectionEstablished() {
-
-  client.subscribe("HelloGP12345", [] (const String &payload)  {
-    Serial.println(payload);
-  });
-
-  client.publish("HelloGP12345", "This is a message");
-}*/
 
 void setup()
 {
@@ -592,29 +575,15 @@ void loop()
   }
   client.loop();
 
-  //currentTime - lastTime > 3000 ||chartdata[cdatacounter-1].temp1-chartdata[cdatacounter-2].temp1 >0.2
-  //float tempKulombseg1 = chartdata[cdatacounter-1].temp1 - chartdata[cdatacounter-2].temp1;
-  //float tempKulombseg2 = chartdata[cdatacounter-1].temp2 - chartdata[cdatacounter-2].temp2;
-
-  //float tempKulombseg2 = chartdata[cdatacounter-1].temp2 - chartdata[cdatacounter-2].temp2;
-  //Serial.print("tempKulombseg1: ");
-  //Serial.println(tempKulombseg1);
-  //Serial.print("tempKulombseg2: ");
-  //Serial.println(tempKulombseg2);
-  /*
-||tempKulombseg1 > 0.1
-  ||tempKulombseg1 < -0.1
-  ||tempKulombseg2 > 0.1
-  ||tempKulombseg2 < -0.1
-  */
   float tempKulombseg1 = chartdata[cdatacounter - 1].temp1 - LastSentTemp1;
   float tempKulombseg2 = chartdata[cdatacounter - 1].temp2 - LastSentTemp2;
   Serial.print("tempKulombseg1: ");
   Serial.println(tempKulombseg1);
   Serial.print("tempKulombseg2: ");
   Serial.println(tempKulombseg2);
-  if ( 
-     tempKulombseg1 > 0.2 
+  currentTime=millis();
+  if (currentTime-lastTime > 1800000
+  || tempKulombseg1 > 0.2 
   || tempKulombseg1 < -0.2 
   || tempKulombseg2 > 0.2 
   || tempKulombseg2 < -0.2 
@@ -628,6 +597,8 @@ void loop()
     Serial.print("----Sending messages: ");
     Serial.println(messages);
     client.publish(outTopic, messages);
+
+    lastTime = millis();
   }
 
 } //end loop
