@@ -74,7 +74,7 @@ input[type=number], input[type=text] {
   cursor: pointer;
 }
 
-input[type=button], input[type=reset] {
+input[type=button],input[type=submit], input[type=reset] {
   font-size: 1.5rem;
   background-color: #4CAF50;
   border: none;

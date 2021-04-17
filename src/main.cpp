@@ -34,12 +34,14 @@ const char *broker = "broker.emqx.io";
 const char *outTopic = "HelloGP12345";
 
 WiFiClient espClient;
-PubSubClient client(espClient);
+PubSubClient mqttClient(espClient);
 int count = 0;
 char messages[100];
 float LastSentTemp1 = 0;
 float LastSentTemp2 = 0;
 long currentTime, lastTime;
+float futesKorabbi = 0;
+float settempKorabbi = 0;
 //--------------------------------------------------------------------
 
 int update_ret;
@@ -107,22 +109,31 @@ void readep()
   EEPROM.get(0, eepromdata);
 }
 
-void reconnect()
+void reconnect(int Try)
 {
-  while (!client.connected())
+  //int Try = 30;
+  while (!mqttClient.connected() && Try >= 0)
   {
     Serial.print("\nConnected to");
     Serial.println(broker);
-    if (client.connect(brokerClientId, brokerUser, brokerPass))
+    Serial.print(".");
+    Serial.print(Try);
+    Serial.print(".");
+    Try--;
+    if (mqttClient.connect(brokerClientId, brokerUser, brokerPass))
     {
       Serial.println("Connected");
       Serial.println(broker);
     }
-    else
+   /*  else
     {
-      Serial.println("trying againg");
-      delay(5000);
-    }
+      Serial.println("Mqtt Connection Failed!");
+      //delay(5000);
+    } */
+  }
+  if(!mqttClient.connected())
+  {
+    Serial.println("Mqtt Connection Failed!");
   }
 }
 
@@ -299,8 +310,6 @@ void prepJsonResponseFile()
   file.close();
 }
 
-
-
 void setup()
 {
   delay(1000);
@@ -332,7 +341,8 @@ void setup()
   wifisetup();
 
   //--------------------------------------------------
-  client.setServer(broker, 1883);
+  mqttClient.setServer(broker, 1883);
+  reconnect(30);
 
   Serial.print("----Flash Update try----");
   update_ret = OtadriveUpdateFlash();
@@ -571,36 +581,37 @@ void loop()
     wifisetup();
   }
 
-  if (!client.connected())
+  if (!mqttClient.connected())
   {
-    reconnect();
+    reconnect(1);
   }
-  client.loop();
-
-  float tempKulombseg1 = chartdata[cdatacounter - 1].temp1 - LastSentTemp1;
-  float tempKulombseg2 = chartdata[cdatacounter - 1].temp2 - LastSentTemp2;
-  Serial.print("tempKulombseg1: ");
-  Serial.println(tempKulombseg1);
-  Serial.print("tempKulombseg2: ");
-  Serial.println(tempKulombseg2);
-  currentTime=millis();
-  if (currentTime-lastTime > 1800000
-  || tempKulombseg1 > 0.2 
-  || tempKulombseg1 < -0.2 
-  || tempKulombseg2 > 0.2 
-  || tempKulombseg2 < -0.2 
-  || chartdata[cdatacounter - 1].settemp != chartdata[cdatacounter - 2].settemp 
-  || chartdata[cdatacounter - 1].futes != chartdata[cdatacounter - 2].futes)
+  mqttClient.loop();
+  if (mqttClient.connected())
   {
-    LastSentTemp1 = chartdata[cdatacounter - 1].temp1;
-    LastSentTemp2 = chartdata[cdatacounter - 1].temp2;
-    snprintf(messages, 100, "DC: %d, Time: %d, SetTemp: %.2f, temp1: %.2f, temp2: %.2f, Heating: %d",
-             cdatacounter - 1, chartdata[cdatacounter - 1].time, chartdata[cdatacounter - 1].settemp, chartdata[cdatacounter - 1].temp1, chartdata[cdatacounter - 1].temp2, chartdata[cdatacounter - 1].futes);
-    Serial.print("----Sending messages: ");
-    Serial.println(messages);
-    client.publish(outTopic, messages);
+    //mqttClient.loop();
 
-    lastTime = millis();
+    float tempKulombseg1 = chartdata[cdatacounter - 1].temp1 - LastSentTemp1;
+    float tempKulombseg2 = chartdata[cdatacounter - 1].temp2 - LastSentTemp2;
+
+    Serial.print("tempKulombseg1: ");
+    Serial.println(tempKulombseg1);
+    Serial.print("tempKulombseg2: ");
+    Serial.println(tempKulombseg2);
+    currentTime = millis();
+    if (currentTime - lastTime > 1800000 || tempKulombseg1 > 0.2 || tempKulombseg1 < -0.2 || tempKulombseg2 > 0.2 || tempKulombseg2 < -0.2 || chartdata[cdatacounter - 1].settemp != settempKorabbi || chartdata[cdatacounter - 1].futes != futesKorabbi)
+    {
+      LastSentTemp1 = chartdata[cdatacounter - 1].temp1;
+      LastSentTemp2 = chartdata[cdatacounter - 1].temp2;
+      settempKorabbi = chartdata[cdatacounter - 1].settemp;
+      futesKorabbi = chartdata[cdatacounter - 1].futes;
+      snprintf(messages, 100, "DC: %d, Time: %d, SetTemp: %.2f, temp1: %.2f, temp2: %.2f, Heating: %d",
+               cdatacounter - 1, chartdata[cdatacounter - 1].time, chartdata[cdatacounter - 1].settemp, chartdata[cdatacounter - 1].temp1, chartdata[cdatacounter - 1].temp2, chartdata[cdatacounter - 1].futes);
+      Serial.print("----Sending messages: ");
+      Serial.println(messages);
+      mqttClient.publish(outTopic, messages);
+
+      lastTime = millis();
+    }
   }
 
 } //end loop
