@@ -40,6 +40,8 @@ char messages[100];
 float LastSentTemp1 = 0;
 float LastSentTemp2 = 0;
 long currentTime, lastTime;
+float futesKorabbi = 0;
+float settempKorabbi = 0;
 //--------------------------------------------------------------------
 
 int update_ret;
@@ -577,6 +579,8 @@ void loop()
 
   float tempKulombseg1 = chartdata[cdatacounter - 1].temp1 - LastSentTemp1;
   float tempKulombseg2 = chartdata[cdatacounter - 1].temp2 - LastSentTemp2;
+  
+
   Serial.print("tempKulombseg1: ");
   Serial.println(tempKulombseg1);
   Serial.print("tempKulombseg2: ");
@@ -587,11 +591,13 @@ void loop()
   || tempKulombseg1 < -0.2 
   || tempKulombseg2 > 0.2 
   || tempKulombseg2 < -0.2 
-  || chartdata[cdatacounter - 1].settemp != chartdata[cdatacounter - 2].settemp 
-  || chartdata[cdatacounter - 1].futes != chartdata[cdatacounter - 2].futes)
+  || chartdata[cdatacounter - 1].settemp != settempKorabbi 
+  || chartdata[cdatacounter - 1].futes != futesKorabbi)
   {
     LastSentTemp1 = chartdata[cdatacounter - 1].temp1;
     LastSentTemp2 = chartdata[cdatacounter - 1].temp2;
+    settempKorabbi = chartdata[cdatacounter - 1].settemp;
+    futesKorabbi = chartdata[cdatacounter - 1].futes;
     snprintf(messages, 100, "DC: %d, Time: %d, SetTemp: %.2f, temp1: %.2f, temp2: %.2f, Heating: %d",
              cdatacounter - 1, chartdata[cdatacounter - 1].time, chartdata[cdatacounter - 1].settemp, chartdata[cdatacounter - 1].temp1, chartdata[cdatacounter - 1].temp2, chartdata[cdatacounter - 1].futes);
     Serial.print("----Sending messages: ");
