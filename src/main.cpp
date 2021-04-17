@@ -51,8 +51,10 @@ int deviceCount = 0;
 
 AsyncWebServer server(80);
 IPAddress myIP;
-char ssidCl[33] = "DIGI_77e598";
-char passwordCl[65] = "aa21881a";
+//char ssidCl[33] = "DIGI_77e598";
+//char passwordCl[65] = "aa21881a";
+char ssidCl[33] = "iPGX";
+char passwordCl[65] = "1234567890";
 //char ssidCl[33] = "12otb24e";
 //char passwordCl[65] = "Sukoro70";
 const char *ssidAp = "SzolloMelegito";
