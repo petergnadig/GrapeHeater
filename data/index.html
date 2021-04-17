@@ -1,59 +1,63 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Frameset//EN" "http://www.w3.org/TR/html4/frameset.dtd">
-<html>
-    <head>
-      <title>Szöllőmelegítő</title>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1">
-      <link rel="stylesheet" type="text/css" href="style.css">
-    </head>
-    <body>
-        <h1> Szöllőmelegítő </h1>
-        <p>
-            <span class="sensor-labels">Hőmérséklet 1: </span>
-            <span id="temperature1">%TEMPERATURE1%</span>
-            <sup class="units">°C</sup>
-            <br><br>
-            <span class="sensor-labels">Hőmérséklet 2: </span>
-            <span id="temperature2">%TEMPERATURE2%</span>
-            <sup class="units">°C</sup>
-            <br><br>
-            <span class="sensor-labels">Fűtés: </span>
-            <span id="heating">%HEATING%</span>
-        </p>
-        <div class="inputThings">
-          <form action="/submit">
-            <table>
-              <tr>
-                <td><label for="newtemp">Új hőmérséklet:</label></td>
-                <td><input type="number" id="newtemp" name="newtemp" value="%TEMPSET%"></td>
-              </tr>
-              <tr>
-                <td><label for="wifinetwork">Wifi hálózat:</label></td>
-                <td><input type="text" id="wifinetwork" name="wifinetwork" value="%WIFINETWORK%"></td>                
-              </tr>
-              <tr>
-                <td><label for="wifipassword">Wifi jelszó:</label></td>
-                <td><input type="text" id="wifipassword" name="wifipassword" value="%WIFIPASSWORD%"></td>
-              </tr>
-            </table>
-            <input type="submit" value="Beállít">
-         </form>
-        </div>
+<!DOCTYPE html>
+<html lang="en">
 
-        <div class="navigationToAnotherPage">
-          <form action="/myChart.html">
-              <input type="submit" value="Chart" />
-          </form>
-          <form action="/settings.html">
-              <input type="submit" value="settings" />
-          </form>
-          <form action="/index2.html">
-            <input type="submit" value="index2" />
-          </form>
-        </div>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="indexStyle.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <script src="/chart/Chart.js"></script>
+    <title>Document</title>
+</head>
 
-       
-    </body>
+<body>
+    <h1> Szöllőmelegítő </h1>
 
-    <script type="text/javascript" src="indexScripts.js"></script>
+
+    <div class="container adatok">
+        <table border='2'>
+            <tr>
+                <td><span class="sensor-labels">Hőmérséklet 1: </span></td>
+                <td><span class="sensor-labels">Hőmérséklet 2: </span></td>
+                <td><span class="sensor-labels">Beállított: </span></td>
+                <td><span class="sensor-labels">Fűtés: </span></td>
+            </tr>
+            <tr>
+                <td><span id="temperature1">%TEMPERATURE1%</span> <sup class="units">°C</sup></td>
+                <td><span id="temperature2">%TEMPERATURE2%</span> <sup class="units">°C</sup></td>
+                <td><span id="settemp">%SETTEMP%</span> <sup class="units">°C</sup></td>
+                <td><span id="heating">%HEATING%</span></td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="container">
+        <!----
+        <form action="/index.html">
+            <input type="submit" class="btn btn-success" value="VISSZA" />
+        </form>
+        -->
+        <form action="/settings.html">
+            <input type="submit" class="btn btn-success" value="Beállítások" />
+        </form>
+    </div>
+
+    <div class="chartHolder3">
+        <div class="chartHolder2">
+            <div id="gifDiv">
+                <img id="gif" src="loading.gif">
+            </div>
+            <div class="chartHolder">
+                <canvas style="min-width: 800px; min-height: 400px;" id="myChart"></canvas>
+            </div>
+        </div>    
+    </div>
+
+</body>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script type="text/javascript" src="indexScripts.js"></script>
+<script type="text/javascript" src="myChartScripts.js"></script>
+
 </html>
