@@ -130,13 +130,13 @@ void reconnect(int Try)
       Serial.println("Connected");
       Serial.println(broker);
     }
-   /*  else
+    /*  else
     {
       Serial.println("Mqtt Connection Failed!");
       //delay(5000);
     } */
   }
-  if(!mqttClient.connected())
+  if (!mqttClient.connected())
   {
     Serial.println("Mqtt Connection Failed!");
   }
@@ -344,7 +344,6 @@ void setup()
   strcpy(passwordCl, eepromdata.wifipassword);
 
   wifisetup();
-
   //--------------------------------------------------
   mqttClient.setServer(broker, 1883);
   reconnect(30);
@@ -376,13 +375,19 @@ void setup()
   });
 
   server.on("/indexScripts.js", HTTP_GET, [](AsyncWebServerRequest *request) {
+    //Serial.println("indexScripts!!!");
     AsyncWebServerResponse *response = request->beginResponse(LittleFS, "/indexScripts.js", "text");
     request->send(response);
   });
 
-  server.on("/style.css", HTTP_GET, [](AsyncWebServerRequest *request) {
-    Serial.println("Style!!!");
-    AsyncWebServerResponse *response = request->beginResponse(LittleFS, "/style.css", "text/css");
+  server.on("/indexStyle.css", HTTP_GET, [](AsyncWebServerRequest *request) {
+    //Serial.println("indexStyle!!!");
+    AsyncWebServerResponse *response = request->beginResponse(LittleFS, "/indexStyle.css", "text/css");
+    request->send(response);
+  }); 
+
+  server.on("/myChartScripts.js", HTTP_GET, [](AsyncWebServerRequest *request) {
+    AsyncWebServerResponse *response = request->beginResponse(LittleFS, "/myChartScripts.js", "text");
     request->send(response);
   });
 
@@ -452,21 +457,6 @@ void setup()
     request->send(response);
   });
 
-  server.on("/myChart.html", HTTP_GET, [](AsyncWebServerRequest *request) {
-    AsyncWebServerResponse *response = request->beginResponse(LittleFS, "/myChart.html", "text/html");
-    request->send(response);
-  });
-
-  server.on("/myChartScripts.js", HTTP_GET, [](AsyncWebServerRequest *request) {
-    AsyncWebServerResponse *response = request->beginResponse(LittleFS, "/myChartScripts.js", "text");
-    request->send(response);
-  });
-
-  server.on("/myChartStyle.css", HTTP_GET, [](AsyncWebServerRequest *request) {
-    AsyncWebServerResponse *response = request->beginResponse(LittleFS, "/myChartStyle.css", "text/css");
-    request->send(response);
-  });
-
   server.on("/chart/Chart.css", HTTP_GET, [](AsyncWebServerRequest *request) {
     AsyncWebServerResponse *response = request->beginResponse(LittleFS, "/chart/Chart.css", "text/css");
     request->send(response);
@@ -489,21 +479,6 @@ void setup()
   //loading gif
   server.on("/loading.gif", HTTP_GET, [](AsyncWebServerRequest *request) {
     AsyncWebServerResponse *response = request->beginResponse(LittleFS, "/loading.gif", "img");
-    request->send(response);
-  });
-
-  server.on("/index2.html", HTTP_GET, [](AsyncWebServerRequest *request) {
-    AsyncWebServerResponse *response = request->beginResponse(LittleFS, "/index2.html", String(), false, prephtml);
-    request->send(response);
-  });
-
-  server.on("/index2newStyle.css", HTTP_GET, [](AsyncWebServerRequest *request) {
-    AsyncWebServerResponse *response = request->beginResponse(LittleFS, "/index2newStyle.css", "text/css");
-    request->send(response);
-  });
-
-  server.on("/index2Scripts.js", HTTP_GET, [](AsyncWebServerRequest *request) {
-    AsyncWebServerResponse *response = request->beginResponse(LittleFS, "/index2Scripts.js", "text");
     request->send(response);
   });
 
