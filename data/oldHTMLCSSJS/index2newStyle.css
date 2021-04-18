@@ -1,0 +1,102 @@
+@media screen and (max-width: 700px) {
+    table {
+        font-size: 1rem !important;
+    }
+}
+
+@media screen and (max-width: 600px) {
+    table {
+        font-size: 0.8rem !important;
+    }
+}
+
+@media screen and (max-width: 500px) {
+    table {
+        font-size: 0.7rem !important;
+    }
+}
+
+html {
+    background-color: rgb(204, 200, 200) !important;
+    font-family: Arial;
+}
+
+body {
+    background-color: rgb(204, 200, 200) !important;
+}
+
+h1 {
+    display: table;
+    margin: 0 auto;
+    color: #0F3376;
+}
+
+table {
+    font-size: 1.5rem;
+    display: table;
+    margin: 0 auto;
+    text-align: center;
+}
+
+td {
+    width: 25%;
+}
+
+form {
+    display: inline;
+    padding: 0 10px;
+}
+
+
+input[type=number], input[type=text] {
+    font-size: 1rem;
+    border: none;
+    color: green;
+    padding: 16px 32px;
+    text-decoration: none;
+    margin: 4px 2px;
+    cursor: pointer;
+  }
+  input[type=button], input[type=submit], input[type=reset] {
+    font-size: 1rem;
+    background-color: #4CAF50;
+    border: none;
+    color: greenyellow;
+    padding: 16px 32px;
+    text-decoration: none;
+    margin: 4px 2px;
+    cursor: pointer;
+  }
+
+
+.container {
+    padding: 50px 10px 10px 0px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#gifDiv {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.chartHolder {
+    overflow: auto;
+    display: inline-block;
+    margin: 0 auto;
+    background-color: white;
+}
+
+.chartHolder2 {
+    overflow: auto;
+    display: inline-block;
+    width: 90%;
+}
+
+.chartHolder3 {
+    width: 100%;
+    text-align: center;
+}

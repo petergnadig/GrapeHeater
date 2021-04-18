@@ -22,16 +22,21 @@
 #define CHARTDATANO 1024        // 5 percenként kb két hét adatát tudja tárolni
 #define CHARTUPDATEMILLIS 30000 // 300.000 millisec kb 5 perc
 
-//#include "MQTTClient.h"
-//#include "EspMQTTClient.h" // https://github.com/plapointe6/EspMQTTClient
-//------------------------------------------------------------------
+char chid[38];
+uint64_t chipid = ESP.getChipId();
+uint16_t chip = (uint16_t)(chipid >> 32);
+int ch = snprintf(chid, 38, "GP200507/grape/ESP8266-%04X%08X", chip, (uint32_t)chipid);
+
+
 #include <PubSubClient.h>
 
 const char *brokerClientId = "Peti";
 const char *brokerUser = "Peti";
 const char *brokerPass = "Peti";
 const char *broker = "broker.emqx.io";
-const char *outTopic = "HelloGP12345";
+const char *outTopic = chid;
+//const char *outTopic = prefix + chid;
+
 
 WiFiClient espClient;
 PubSubClient mqttClient(espClient);
@@ -572,7 +577,11 @@ void loop()
   Serial.print(WiFi.getMode());
   Serial.print(" WiFi status: ");
   Serial.print(WiFi.status());
-  Serial.println();
+  Serial.print(" IP: ");
+  Serial.println(WiFi.localIP());
+  Serial.print("Mqtt Topic:  ");
+  Serial.println(outTopic);
+  
 
   if (WiFi.status() != WL_CONNECTED && (millis() - wifi_last_check) >= 1000000)
   {
