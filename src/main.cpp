@@ -19,7 +19,7 @@
 #define RELAY_PIN 5
 #define ONE_WIRE_BUS 4 // Gyulai kütyün ez 4!!!!
 
-#define CHARTDATANO 1024        // 5 percenként kb két hét adatát tudja tárolni
+#define CHARTDATANO 16//1024       // 5 percenként kb két hét adatát tudja tárolni
 #define CHARTUPDATEMILLIS 30000 // 300.000 millisec kb 5 perc
 
 char chid[38];
@@ -58,10 +58,10 @@ int deviceCount = 0;
 
 AsyncWebServer server(80);
 IPAddress myIP;
-//char ssidCl[33] = "DIGI_77e598";
-//char passwordCl[65] = "aa21881a";
-char ssidCl[33] = "iPGX";
-char passwordCl[65] = "1234567890";
+char ssidCl[33] = "DIGI_77e598";
+char passwordCl[65] = "aa21881a";
+//char ssidCl[33] = "iPGX";
+//char passwordCl[65] = "1234567890";
 //char ssidCl[33] = "12otb24e";
 //char passwordCl[65] = "Sukoro70";
 const char *ssidAp = "SzolloMelegito";
@@ -545,8 +545,7 @@ void loop()
   Serial.print(chartdata[cdatacounter].futes);
   Serial.println();
 
-  cdatacounter++;
-  cdatacounter = cdatacounter & (CHARTDATANO - 1);
+
 
   Serial.print(" WiFi mode: ");
   Serial.print(WiFi.getMode());
@@ -572,24 +571,22 @@ void loop()
   mqttClient.loop();
   if (mqttClient.connected())
   {
-    //mqttClient.loop();
-
-    float tempKulombseg1 = chartdata[cdatacounter - 1].temp1 - LastSentTemp1;
-    float tempKulombseg2 = chartdata[cdatacounter - 1].temp2 - LastSentTemp2;
+    float tempKulombseg1 = chartdata[cdatacounter].temp1 - LastSentTemp1;
+    float tempKulombseg2 = chartdata[cdatacounter].temp2 - LastSentTemp2;
 
     Serial.print("tempKulombseg1: ");
     Serial.println(tempKulombseg1);
     Serial.print("tempKulombseg2: ");
     Serial.println(tempKulombseg2);
     currentTime = millis();
-    if (currentTime - lastTime > 1800000 || tempKulombseg1 > 0.2 || tempKulombseg1 < -0.2 || tempKulombseg2 > 0.2 || tempKulombseg2 < -0.2 || chartdata[cdatacounter - 1].settemp != settempKorabbi || chartdata[cdatacounter - 1].futes != futesKorabbi)
+    if (currentTime - lastTime > 1800000 || tempKulombseg1 > 0.2 || tempKulombseg1 < -0.2 || tempKulombseg2 > 0.2 || tempKulombseg2 < -0.2 || chartdata[cdatacounter].settemp != settempKorabbi || chartdata[cdatacounter].futes != futesKorabbi)
     {
-      LastSentTemp1 = chartdata[cdatacounter - 1].temp1;
-      LastSentTemp2 = chartdata[cdatacounter - 1].temp2;
-      settempKorabbi = chartdata[cdatacounter - 1].settemp;
-      futesKorabbi = chartdata[cdatacounter - 1].futes;
+      LastSentTemp1 = chartdata[cdatacounter].temp1;
+      LastSentTemp2 = chartdata[cdatacounter].temp2;
+      settempKorabbi = chartdata[cdatacounter].settemp;
+      futesKorabbi = chartdata[cdatacounter].futes;
       snprintf(messages, 100, "DC: %d, Time: %d, SetTemp: %.2f, temp1: %.2f, temp2: %.2f, Heating: %d",
-               cdatacounter - 1, chartdata[cdatacounter - 1].time, chartdata[cdatacounter - 1].settemp, chartdata[cdatacounter - 1].temp1, chartdata[cdatacounter - 1].temp2, chartdata[cdatacounter - 1].futes);
+               cdatacounter, chartdata[cdatacounter].time, chartdata[cdatacounter].settemp, chartdata[cdatacounter].temp1, chartdata[cdatacounter].temp2, chartdata[cdatacounter].futes);
       Serial.print("----Sending messages: ");
       Serial.println(messages);
       mqttClient.publish(outTopic, messages);
@@ -597,5 +594,7 @@ void loop()
       lastTime = millis();
     }
   }
+  cdatacounter++;
+  cdatacounter = cdatacounter & (CHARTDATANO - 1);
 
 } //end loop
