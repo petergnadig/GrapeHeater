@@ -10,6 +10,9 @@
 #include <OneWire.h>
 #include <DallasTemperature.h>
 
+#include <iostream>
+#include <cstring>
+
 #define UpdateMinutes 120
 #define ProductKey "328d8051-5a20-4fb2-8eb2-c976d425b98e"
 #define Version "21.03.14.02"
@@ -19,14 +22,13 @@
 #define RELAY_PIN 5
 #define ONE_WIRE_BUS 4 // Gyulai kütyün ez 4!!!!
 
-#define CHARTDATANO 16//1024       // 5 percenként kb két hét adatát tudja tárolni
+#define CHARTDATANO 1024//16          //1024       // 5 percenként kb két hét adatát tudja tárolni
 #define CHARTUPDATEMILLIS 30000 // 300.000 millisec kb 5 perc
 
 char chid[38];
 uint64_t chipid = ESP.getChipId();
 uint16_t chip = (uint16_t)(chipid >> 32);
 int ch = snprintf(chid, 38, "GP200507/grape/ESP8266-%04X%08X", chip, (uint32_t)chipid);
-
 
 #include <PubSubClient.h>
 
@@ -35,8 +37,7 @@ const char *brokerUser = "Peti";
 const char *brokerPass = "Peti";
 const char *broker = "broker.emqx.io";
 const char *outTopic = chid;
-//const char *outTopic = prefix + chid;
-
+//topic: GP200507/grape/ESP8266-00000068F896
 
 WiFiClient espClient;
 PubSubClient mqttClient(espClient);
@@ -47,6 +48,8 @@ float LastSentTemp2 = 0;
 long currentTime, lastTime;
 float futesKorabbi = 0;
 float settempKorabbi = 0;
+float tempKulombseg1 = 0;
+float tempKulombseg2 = 0;
 //--------------------------------------------------------------------
 
 int update_ret;
@@ -272,6 +275,40 @@ void printAddress(DeviceAddress deviceAddress)
   Serial.println("");
 }
 
+//-----------
+String CreateJsonLineString()
+{
+  String result = "";
+  result += "{";
+  result += "\"time\":"; //+ chartdata[cdatacounter].time;
+  result += chartdata[cdatacounter].time;
+  result += ",";
+  result += "\"ST\":";
+  result += chartdata[cdatacounter].settemp;
+  result += ",";
+  result += "\"T1\":";
+  result += chartdata[cdatacounter].temp1;
+  result += ",";
+  result += "\"T2\":";
+  result += chartdata[cdatacounter].temp2;
+  result += ",";
+  result += "\"HE\":";
+  result += chartdata[cdatacounter].futes;
+  result += "}";
+  //Serial.println(result);
+  return (result);
+}
+
+String CreateJsonObjectString()
+{
+  String JsonObject = "";
+  JsonObject += "[";
+  JsonObject += CreateJsonLineString();
+  JsonObject += "]";
+  //Serial.println(JsonObject);
+  return (JsonObject);
+}
+
 void prepJsonResponseFile()
 {
   Serial.println("---Prep Json---");
@@ -384,7 +421,7 @@ void setup()
     //Serial.println("indexStyle!!!");
     AsyncWebServerResponse *response = request->beginResponse(LittleFS, "/indexStyle.css", "text/css");
     request->send(response);
-  }); 
+  });
 
   server.on("/myChartScripts.js", HTTP_GET, [](AsyncWebServerRequest *request) {
     AsyncWebServerResponse *response = request->beginResponse(LittleFS, "/myChartScripts.js", "text");
@@ -545,8 +582,6 @@ void loop()
   Serial.print(chartdata[cdatacounter].futes);
   Serial.println();
 
-
-
   Serial.print(" WiFi mode: ");
   Serial.print(WiFi.getMode());
   Serial.print(" WiFi status: ");
@@ -555,7 +590,6 @@ void loop()
   Serial.println(WiFi.localIP());
   Serial.print("Mqtt Topic:  ");
   Serial.println(outTopic);
-  
 
   if (WiFi.status() != WL_CONNECTED && (millis() - wifi_last_check) >= 1000000)
   {
@@ -564,33 +598,39 @@ void loop()
     wifisetup();
   }
 
-  if (!mqttClient.connected())
+  tempKulombseg1 = chartdata[cdatacounter].temp1 - LastSentTemp1;
+  tempKulombseg2 = chartdata[cdatacounter].temp2 - LastSentTemp2;
+  Serial.print("tempKulombseg1: ");
+  Serial.println(tempKulombseg1);
+  Serial.print("tempKulombseg2: ");
+  Serial.println(tempKulombseg2);
+  currentTime = millis();
+  if (currentTime - lastTime > 1800000 || tempKulombseg1 > 0.2 || tempKulombseg1 < -0.2 || tempKulombseg2 > 0.2 || tempKulombseg2 < -0.2 || chartdata[cdatacounter].settemp != settempKorabbi || chartdata[cdatacounter].futes != futesKorabbi)
   {
-    reconnect(1);
-  }
-  mqttClient.loop();
-  if (mqttClient.connected())
-  {
-    float tempKulombseg1 = chartdata[cdatacounter].temp1 - LastSentTemp1;
-    float tempKulombseg2 = chartdata[cdatacounter].temp2 - LastSentTemp2;
-
-    Serial.print("tempKulombseg1: ");
-    Serial.println(tempKulombseg1);
-    Serial.print("tempKulombseg2: ");
-    Serial.println(tempKulombseg2);
-    currentTime = millis();
-    if (currentTime - lastTime > 1800000 || tempKulombseg1 > 0.2 || tempKulombseg1 < -0.2 || tempKulombseg2 > 0.2 || tempKulombseg2 < -0.2 || chartdata[cdatacounter].settemp != settempKorabbi || chartdata[cdatacounter].futes != futesKorabbi)
+    if (!mqttClient.connected())
+    {
+      reconnect(1);
+    }
+    if (mqttClient.connected())
     {
       LastSentTemp1 = chartdata[cdatacounter].temp1;
       LastSentTemp2 = chartdata[cdatacounter].temp2;
       settempKorabbi = chartdata[cdatacounter].settemp;
       futesKorabbi = chartdata[cdatacounter].futes;
-      snprintf(messages, 100, "DC: %d, Time: %d, SetTemp: %.2f, temp1: %.2f, temp2: %.2f, Heating: %d",
-               cdatacounter, chartdata[cdatacounter].time, chartdata[cdatacounter].settemp, chartdata[cdatacounter].temp1, chartdata[cdatacounter].temp2, chartdata[cdatacounter].futes);
+      /* snprintf(messages, 100, "DC: %d, Time: %d, SetTemp: %.2f, temp1: %.2f, temp2: %.2f, Heating: %d",
+               cdatacounter, chartdata[cdatacounter].time, chartdata[cdatacounter].settemp, chartdata[cdatacounter].temp1, chartdata[cdatacounter].temp2, chartdata[cdatacounter].futes);*/
+      String s = CreateJsonObjectString();
+      char charArray[s.length()]; // charArray[s.length()+1]
+      strcpy(charArray, s.c_str());
+      /* for (int i = 0; i < sizeof(charArray); i++)
+      {
+        charArray[i] = s[i];
+      } */
       Serial.print("----Sending messages: ");
-      Serial.println(messages);
-      mqttClient.publish(outTopic, messages);
-
+      Serial.println(charArray);
+      /*  Serial.print("----Sending messages: ");
+      Serial.println(messages); */
+      mqttClient.publish(outTopic, charArray);
       lastTime = millis();
     }
   }
