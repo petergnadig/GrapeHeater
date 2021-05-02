@@ -275,7 +275,6 @@ void printAddress(DeviceAddress deviceAddress)
   Serial.println("");
 }
 
-//-----------
 String CreateJsonLineString()
 {
   String result = "";
@@ -327,7 +326,7 @@ void prepJsonResponseFile()
     {
       file.println(",");
     }
-    file.print("{\"time\":");
+    file.print("{\"time\":");   //->> TODO USE CreateJsonLineString()
     file.print(chartdata[jsoncounter].time);
     file.print(",");
     file.print("\"ST\":");
@@ -617,19 +616,11 @@ void loop()
       LastSentTemp2 = chartdata[cdatacounter].temp2;
       settempKorabbi = chartdata[cdatacounter].settemp;
       futesKorabbi = chartdata[cdatacounter].futes;
-      /* snprintf(messages, 100, "DC: %d, Time: %d, SetTemp: %.2f, temp1: %.2f, temp2: %.2f, Heating: %d",
-               cdatacounter, chartdata[cdatacounter].time, chartdata[cdatacounter].settemp, chartdata[cdatacounter].temp1, chartdata[cdatacounter].temp2, chartdata[cdatacounter].futes);*/
       String s = CreateJsonObjectString();
-      char charArray[s.length()]; // charArray[s.length()+1]
+      char charArray[s.length()]; // charArray[s.length()+1]  --> TODO ROAD TO BLUE!!!
       strcpy(charArray, s.c_str());
-      /* for (int i = 0; i < sizeof(charArray); i++)
-      {
-        charArray[i] = s[i];
-      } */
       Serial.print("----Sending messages: ");
       Serial.println(charArray);
-      /*  Serial.print("----Sending messages: ");
-      Serial.println(messages); */
       mqttClient.publish(outTopic, charArray);
       lastTime = millis();
     }
