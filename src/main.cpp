@@ -678,8 +678,8 @@ void loop()
       Serial.print("----Sending messages: ");
       Serial.println(JSONcharArray);
 
-      mqttClient.publish(outTopic, JSONcharArray);
-      //MQTTpublish();
+      //mqttClient.publish(outTopic, JSONcharArray);
+      MQTTpublish();
       lastTime = millis();
     }
     else
