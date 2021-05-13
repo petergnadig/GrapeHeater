@@ -22,7 +22,7 @@
 #define RELAY_PIN 5
 #define ONE_WIRE_BUS 4 // Gyulai kütyün ez 4!!!!
 
-#define CHARTDATANO 1024//16          //1024       // 5 percenként kb két hét adatát tudja tárolni
+#define CHARTDATANO 16          //1024       // 5 percenként kb két hét adatát tudja tárolni
 #define CHARTUPDATEMILLIS 30000 // 300.000 millisec kb 5 perc
 
 char chid[38];
@@ -30,8 +30,8 @@ uint64_t chipid = ESP.getChipId();
 uint16_t chip = (uint16_t)(chipid >> 32);
 int ch = snprintf(chid, 38, "GP200507/grape/ESP8266-%04X%08X", chip, (uint32_t)chipid);
 
+//MQTT PubSubClient
 #include <PubSubClient.h>
-
 const char *brokerClientId = "Peti";
 const char *brokerUser = "Peti";
 const char *brokerPass = "Peti";
@@ -39,17 +39,22 @@ const char *broker = "broker.emqx.io";
 const char *outTopic = chid;
 //topic: GP200507/grape/ESP8266-00000068F896
 
+//MQT Post
 WiFiClient espClient;
 PubSubClient mqttClient(espClient);
 int count = 0;
 char messages[100];
-float LastSentTemp1 = 0;
-float LastSentTemp2 = 0;
+float lastSentTemp1 = 0;
+float lastSentTemp2 = 0;
 long currentTime, lastTime;
-float futesKorabbi = 0;
-float settempKorabbi = 0;
-float tempKulombseg1 = 0;
-float tempKulombseg2 = 0;
+float heatingPrevious = 0;
+float setTempPrevious = 0;
+float tempDiff1 = 0;
+float tempDiff2 = 0;
+
+//JSON
+String JSONString;
+char *JSONcharArray;
 //--------------------------------------------------------------------
 
 int update_ret;
@@ -133,11 +138,6 @@ void reconnect(int Try)
       Serial.println("Connected");
       Serial.println(broker);
     }
-    /*  else
-    {
-      Serial.println("Mqtt Connection Failed!");
-      //delay(5000);
-    } */
   }
   if (!mqttClient.connected())
   {
@@ -275,6 +275,21 @@ void printAddress(DeviceAddress deviceAddress)
   Serial.println("");
 }
 
+//CreateJSONCharArray 1 & 2 tesztelés allatt
+char* CreateJSONCharArray1()  //V1
+{
+  char *charArray = (char *)calloc(JSONString.length(), sizeof(char));
+  strcpy(charArray, JSONString.c_str());
+  return charArray;
+}
+
+void CreateJSONCharArray2()   //V2
+{
+  JSONcharArray = (char *)calloc(JSONString.length(), sizeof(char));
+  strcpy(JSONcharArray, JSONString.c_str());
+}
+
+//Create JSON String
 String CreateJsonLineString()
 {
   String result = "";
@@ -307,7 +322,7 @@ String CreateJsonObjectString()
   //Serial.println(JsonObject);
   return (JsonObject);
 }
-
+//Create JSON File
 void prepJsonResponseFile()
 {
   Serial.println("---Prep Json---");
@@ -597,14 +612,14 @@ void loop()
     wifisetup();
   }
 
-  tempKulombseg1 = chartdata[cdatacounter].temp1 - LastSentTemp1;
-  tempKulombseg2 = chartdata[cdatacounter].temp2 - LastSentTemp2;
-  Serial.print("tempKulombseg1: ");
-  Serial.println(tempKulombseg1);
-  Serial.print("tempKulombseg2: ");
-  Serial.println(tempKulombseg2);
+  tempDiff1 = chartdata[cdatacounter].temp1 - lastSentTemp1;
+  tempDiff2 = chartdata[cdatacounter].temp2 - lastSentTemp2;
+  Serial.print("tempDiff1: ");
+  Serial.println(tempDiff1);
+  Serial.print("tempDiff2: ");
+  Serial.println(tempDiff2);
   currentTime = millis();
-  if (currentTime - lastTime > 1800000 || tempKulombseg1 > 0.2 || tempKulombseg1 < -0.2 || tempKulombseg2 > 0.2 || tempKulombseg2 < -0.2 || chartdata[cdatacounter].settemp != settempKorabbi || chartdata[cdatacounter].futes != futesKorabbi)
+  if (currentTime - lastTime > 1800000 || tempDiff1 > 0.2 || tempDiff1 < -0.2 || tempDiff2 > 0.2 || tempDiff2 < -0.2 || chartdata[cdatacounter].settemp != setTempPrevious || chartdata[cdatacounter].futes != heatingPrevious)
   {
     if (!mqttClient.connected())
     {
@@ -612,17 +627,31 @@ void loop()
     }
     if (mqttClient.connected())
     {
-      LastSentTemp1 = chartdata[cdatacounter].temp1;
-      LastSentTemp2 = chartdata[cdatacounter].temp2;
-      settempKorabbi = chartdata[cdatacounter].settemp;
-      futesKorabbi = chartdata[cdatacounter].futes;
-      String s = CreateJsonObjectString();
-      char charArray[s.length()]; // charArray[s.length()+1]  --> TODO ROAD TO BLUE!!!
-      strcpy(charArray, s.c_str());
+      lastSentTemp1 = chartdata[cdatacounter].temp1;
+      lastSentTemp2 = chartdata[cdatacounter].temp2;
+      setTempPrevious = chartdata[cdatacounter].settemp;
+      heatingPrevious = chartdata[cdatacounter].futes;
+      JSONString = CreateJsonObjectString();
+      free(JSONcharArray);
+      //char charArray[JSONString.length()]; // charArray[s.length()+1]  --> TODO ROAD TO BLUE!!!
+      //strcpy(charArray, JSONString.c_str());
+      
+      //Test CreateJSONCharArray1
+      //JSONcharArray = (char *)calloc(JSONString.length(), sizeof(char));
+      //JSONcharArray = CreateJSONCharArray1();
+      
+      //Test CreateJSONCharArray2
+      CreateJSONCharArray2();
+      
       Serial.print("----Sending messages: ");
-      Serial.println(charArray);
-      mqttClient.publish(outTopic, charArray);
+      Serial.println(JSONcharArray);
+
+      mqttClient.publish(outTopic, JSONcharArray);
       lastTime = millis();
+    }
+    else
+    {
+      Serial.println("---MQTT Connection Lost---");
     }
   }
   cdatacounter++;
