@@ -31,6 +31,7 @@ uint16_t chid16 = (uint16_t)(chipid >> 32);
 uint32_t chid32 = (uint32_t)chipid;
 int ch = snprintf(chid, 37, "GP200507/grape/ESP8266-%04X%08X", chid16, chid32);
 
+//MQTT PubSubClient
 #include <PubSubClient.h>
 
 const char *brokerClientId = "Peti";
@@ -40,17 +41,22 @@ const char *broker = "broker.emqx.io";
 const char *outTopic = chid;
 //topic: GP200507/grape/ESP8266-00000068F896
 
+//MQT Post
 WiFiClient espClient;
 PubSubClient mqttClient(espClient);
 int count = 0;
 char messages[100];
-float LastSentTemp1 = 0;
-float LastSentTemp2 = 0;
+float lastSentTemp1 = 0;
+float lastSentTemp2 = 0;
 long currentTime, lastTime;
-float futesKorabbi = 0;
-float settempKorabbi = 0;
-float tempKulombseg1 = 0;
-float tempKulombseg2 = 0;
+float heatingPrevious = 0;
+float setTempPrevious = 0;
+float tempDiff1 = 0;
+float tempDiff2 = 0;
+
+//JSON
+String JSONString;
+char *JSONcharArray;
 //--------------------------------------------------------------------
 
 int update_ret;
@@ -119,10 +125,9 @@ void readep()
 {
   EEPROM.get(0, eepromdata);
 }
-
+//MQTT CONNECT
 void reconnect(int Try)
 {
-  //int Try = 30;
   while (!mqttClient.connected() && Try >= 0)
   {
     Serial.print("\nConnected to");
@@ -136,15 +141,23 @@ void reconnect(int Try)
       Serial.println("Connected");
       Serial.println(broker);
     }
-    /*  else
-    {
-      Serial.println("Mqtt Connection Failed!");
-      //delay(5000);
-    } */
   }
   if (!mqttClient.connected())
   {
     Serial.println("Mqtt Connection Failed!");
+  }
+}
+
+//MQTT publish
+void MQTTpublish()
+{
+  if (mqttClient.publish(outTopic, JSONcharArray))
+  {
+    Serial.println("Message Sent");
+  }
+  else
+  {
+    Serial.println("Sending failed");
   }
 }
 
@@ -278,39 +291,74 @@ void printAddress(DeviceAddress deviceAddress)
   Serial.println("");
 }
 
-String CreateJsonLineString()
+//CreateJSONCharArray 1 & 2 tesztelés allatt
+char *CreateJSONCharArray1() //V1
+{
+  char *charArray = (char *)calloc(JSONString.length(), sizeof(char));
+  strcpy(charArray, JSONString.c_str());
+  return charArray;
+}
+
+void CreateJSONCharArray2() //V2
+{
+  JSONcharArray = (char *)calloc(JSONString.length(), sizeof(char));
+  strcpy(JSONcharArray, JSONString.c_str());
+}
+
+//Create JSON String
+String CreateJsonLineString(int jsoncounter)
 {
   String result = "";
   result += "{";
   result += "\"time\":"; //+ chartdata[cdatacounter].time;
-  result += chartdata[cdatacounter].time;
+  result += chartdata[jsoncounter].time;
   result += ",";
   result += "\"ST\":";
-  result += chartdata[cdatacounter].settemp;
+  result += chartdata[jsoncounter].settemp;
   result += ",";
   result += "\"T1\":";
-  result += chartdata[cdatacounter].temp1;
+  result += chartdata[jsoncounter].temp1;
   result += ",";
   result += "\"T2\":";
-  result += chartdata[cdatacounter].temp2;
+  result += chartdata[jsoncounter].temp2;
   result += ",";
   result += "\"HE\":";
-  result += chartdata[cdatacounter].futes;
+  result += chartdata[jsoncounter].futes;
   result += "}";
   //Serial.println(result);
   return (result);
 }
 
-String CreateJsonObjectString()
+String CreateNJsonObjectString(int N)
 {
+  int jsoncounter = cdatacounter;
+  jsoncounter = jsoncounter & (CHARTDATANO - 1);
+  int count = 0;
+
   String JsonObject = "";
   JsonObject += "[";
-  JsonObject += CreateJsonLineString();
+  while (count < N)
+  {
+    if (count > 0)
+    {
+      JsonObject += ",";
+    }
+    JsonObject += CreateJsonLineString(jsoncounter);
+    count++;
+
+    //jsoncounter = jsoncounter & (CHARTDATANO - 1);
+    if (jsoncounter == 0)
+    {
+      jsoncounter = CHARTDATANO;
+    }
+    jsoncounter--;
+  }
   JsonObject += "]";
+  //Serial.println("########## JsonObject ##########");
   //Serial.println(JsonObject);
   return (JsonObject);
 }
-
+//Create JSON File
 void prepJsonResponseFile()
 {
   Serial.println("---Prep Json---");
@@ -329,7 +377,7 @@ void prepJsonResponseFile()
     {
       file.println(",");
     }
-    file.print("{\"time\":");   //->> TODO USE CreateJsonLineString()
+    file.print("{\"time\":"); //->> TODO USE CreateJsonLineString()
     file.print(chartdata[jsoncounter].time);
     file.print(",");
     file.print("\"ST\":");
@@ -612,14 +660,14 @@ void loop()
     wifisetup();
   }
 
-  tempKulombseg1 = chartdata[cdatacounter].temp1 - LastSentTemp1;
-  tempKulombseg2 = chartdata[cdatacounter].temp2 - LastSentTemp2;
-  Serial.print("tempKulombseg1: ");
-  Serial.println(tempKulombseg1);
-  Serial.print("tempKulombseg2: ");
-  Serial.println(tempKulombseg2);
+  tempDiff1 = chartdata[cdatacounter].temp1 - lastSentTemp1;
+  tempDiff2 = chartdata[cdatacounter].temp2 - lastSentTemp2;
+  Serial.print("tempDiff1: ");
+  Serial.println(tempDiff1);
+  Serial.print("tempDiff2: ");
+  Serial.println(tempDiff2);
   currentTime = millis();
-  if (currentTime - lastTime > 1800000 || tempKulombseg1 > 0.2 || tempKulombseg1 < -0.2 || tempKulombseg2 > 0.2 || tempKulombseg2 < -0.2 || chartdata[cdatacounter].settemp != settempKorabbi || chartdata[cdatacounter].futes != futesKorabbi)
+  if (currentTime - lastTime > 1800000 || tempDiff1 > 0.2 || tempDiff1 < -0.2 || tempDiff2 > 0.2 || tempDiff2 < -0.2 || chartdata[cdatacounter].settemp != setTempPrevious || chartdata[cdatacounter].futes != heatingPrevious)
   {
     if (!mqttClient.connected())
     {
@@ -635,9 +683,15 @@ void loop()
       char charArray[s.length()]; // charArray[s.length()+1]  --> TODO ROAD TO BLUE!!!
       strcpy(charArray, s.c_str());
       Serial.print("----Sending messages: ");
-      Serial.println(charArray);
-      mqttClient.publish(outTopic, charArray);
+      Serial.println(JSONcharArray);
+
+      //mqttClient.publish(outTopic, JSONcharArray);
+      MQTTpublish();
       lastTime = millis();
+    }
+    else
+    {
+      Serial.println("---MQTT Connection Lost---");
     }
   }
   cdatacounter++;
