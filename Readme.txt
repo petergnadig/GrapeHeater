@@ -1,0 +1,1 @@
+Board description:  http://www.chinalctech.com/m/view.php?aid=472

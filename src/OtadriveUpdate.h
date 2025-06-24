@@ -70,12 +70,12 @@ int OtadriveUpdateFlash()
   ESPhttpUpdate.onError(update_error);
 
   String url = "http://otadrive.com/DeviceApi/update?";
-  url += "&s=" + getChipId()+"f";
-  url += MakeFirmwareInfo(ProductKey, FlashVersion);
+  url += "&s=" + getChipId()+"_D";
+  url += MakeFirmwareInfo(ProductKey, Version);
 
   Serial.println(url);
   WiFiClient client; 
-  t_httpUpdate_return ret = ESPhttpUpdate.updateSpiffs(client, url, FlashVersion);
+  t_httpUpdate_return ret = ESPhttpUpdate.updateFS(client, url, Version);
 
   switch (ret)
   {

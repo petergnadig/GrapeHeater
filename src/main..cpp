@@ -15,8 +15,8 @@
 
 #define UpdateMinutes 120
 #define ProductKey "328d8051-5a20-4fb2-8eb2-c976d425b98e"
-#define Version "21.05.23.01"
-#define FlashVersion "21.05.23.51"
+#define Version "25.06.24.01"
+#define FlashVersion "25.06.24.51"
 #include "OtadriveUpdate.h"
 
 #define RELAY_PIN 5
@@ -46,8 +46,8 @@ WiFiClient espClient;
 PubSubClient mqttClient(espClient);
 int count = 0;
 char messages[100];
-float lastSentTemp1 = 0;
-float lastSentTemp2 = 0;
+float LastSentTemp1 = 0;
+float LastSentTemp2 = 0;
 long currentTime, lastTime;
 float heatingPrevious = 0;
 float setTempPrevious = 0;
@@ -97,7 +97,7 @@ struct
   char waswritten[10] = "";
 } eepromdata;
 
-typedef struct Chartstruct
+struct Chartstruct
 {
   unsigned long time = 0;
   float settemp = 0;
@@ -105,6 +105,7 @@ typedef struct Chartstruct
   float temp2 = 0;
   bool futes = false;
 };
+
 Chartstruct chartdata[CHARTDATANO];
 int cdatacounter = 0;
 unsigned long time_last_update = millis();
@@ -329,7 +330,7 @@ String CreateJsonLineString(int jsoncounter)
   return (result);
 }
 
-String CreateNJsonObjectString(int N)
+String CreateJsonObjectString()
 {
   int jsoncounter = cdatacounter;
   jsoncounter = jsoncounter & (CHARTDATANO - 1);
@@ -337,7 +338,7 @@ String CreateNJsonObjectString(int N)
 
   String JsonObject = "";
   JsonObject += "[";
-  while (count < N)
+  while (count < CHARTDATANO)
   {
     if (count > 0)
     {
@@ -660,8 +661,8 @@ void loop()
     wifisetup();
   }
 
-  tempDiff1 = chartdata[cdatacounter].temp1 - lastSentTemp1;
-  tempDiff2 = chartdata[cdatacounter].temp2 - lastSentTemp2;
+  tempDiff1 = chartdata[cdatacounter].temp1 - LastSentTemp1;
+  tempDiff2 = chartdata[cdatacounter].temp2 - LastSentTemp2;
   Serial.print("tempDiff1: ");
   Serial.println(tempDiff1);
   Serial.print("tempDiff2: ");
@@ -677,8 +678,8 @@ void loop()
     {
       LastSentTemp1 = chartdata[cdatacounter].temp1;
       LastSentTemp2 = chartdata[cdatacounter].temp2;
-      settempKorabbi = chartdata[cdatacounter].settemp;
-      futesKorabbi = chartdata[cdatacounter].futes;
+      setTempPrevious = chartdata[cdatacounter].settemp;
+      heatingPrevious = chartdata[cdatacounter].futes;
       String s = CreateJsonObjectString();
       char charArray[s.length()]; // charArray[s.length()+1]  --> TODO ROAD TO BLUE!!!
       strcpy(charArray, s.c_str());
